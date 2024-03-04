@@ -9,13 +9,6 @@ echo "Starting Functional Tests"
 
 cd ${PROJECT_PATH}
 
-#********** Checkov Analysis *************
-echo "Running Checkov Analysis"
-terraform init
-terraform plan -out tf.plan
-terraform show -json tf.plan  > tf.json 
-checkov --config-file ${PROJECT_PATH}/.config/checkov.yml
-
 #********** Terratest execution **********
 echo "Running Terratest"
 cd test

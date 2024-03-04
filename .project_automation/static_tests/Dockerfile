@@ -20,6 +20,8 @@ RUN wget -O /tmp/tflint-ruleset-aws.zip https://github.com/terraform-linters/tfl
 
 RUN curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
 
+RUN pip3 install checkov
+
 RUN gem install mdl
 
 ENV TERRAFORM_DOCS_VERSION=v0.16.0

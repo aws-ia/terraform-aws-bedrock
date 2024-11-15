@@ -1,4 +1,4 @@
-# – IAM – 
+# – IAM –
 
 resource "aws_iam_role" "agent_role" {
   count              = var.create_agent ? 1 : 0
@@ -62,9 +62,9 @@ resource "aws_iam_policy" "bedrock_knowledge_base_policy" {
       {
         "Effect" : "Allow",
         "Action" : [
-          "aoss:*"
+          "aoss:APIAccessAll"
         ],
-        "Resource" : awscc_opensearchserverless_collection.default_collection[0].arn 
+        "Resource" : awscc_opensearchserverless_collection.default_collection[0].arn
       },
       {
         "Effect" : "Allow",
@@ -90,20 +90,4 @@ resource "aws_iam_role_policy_attachment" "bedrock_knowledge_base_policy_attachm
   count      = var.kb_role_arn != null || var.create_kb == false ? 0 : 1
   role       = aws_iam_role.bedrock_knowledge_base_role[0].name
   policy_arn = aws_iam_policy.bedrock_knowledge_base_policy[0].arn
-}
-
-resource "aws_iam_role_policy" "bedrock_kb_oss" {
-  count = var.kb_role_arn != null || var.create_default_kb == false ? 0 : 1
-  name  = "AmazonBedrockOSSPolicyForKnowledgeBase_${var.kb_name}"
-  role  = aws_iam_role.bedrock_knowledge_base_role[count.index].name
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action   = ["aoss:*"]
-        Effect   = "Allow"
-        Resource = ["arn:aws:aoss:${local.region}:${local.account_id}:*/*"]
-      }
-    ]
-  })
 }

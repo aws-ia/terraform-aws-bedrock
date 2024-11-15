@@ -1,4 +1,7 @@
-# – IAM – 
+# – IAM –
+locals {
+  create_kb_role = var.kb_role_arn == null && var.create_default_kb
+}
 
 resource "aws_iam_role" "agent_role" {
   count              = var.create_agent ? 1 : 0
@@ -64,7 +67,7 @@ resource "aws_iam_policy" "bedrock_knowledge_base_policy" {
         "Action" : [
           "aoss:*"
         ],
-        "Resource" : awscc_opensearchserverless_collection.default_collection[0].arn 
+        "Resource" : awscc_opensearchserverless_collection.default_collection[0].arn
       },
       {
         "Effect" : "Allow",
@@ -85,11 +88,38 @@ resource "aws_iam_policy" "bedrock_knowledge_base_policy" {
   })
 }
 
-# Attach the policy to the role
+resource "aws_iam_policy" "bedrock_kb_s3_decryption_policy" {
+  count = local.create_kb_role && var.kb_s3_data_source_kms_arn != null ? 1 : 0
+  name = "AmazonBedrockS3KMSPolicyForKnowledgeBase_${random_string.solution_prefix.result}"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "kms:Decrypt",
+        "Resource" : var.kb_s3_data_source_kms_arn
+        "Condition": {
+          "StringEquals": {
+            "kms:ViaService": ["s3.${data.aws_region.current.name}.amazonaws.com"]
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Attach the policies to the role
 resource "aws_iam_role_policy_attachment" "bedrock_knowledge_base_policy_attachment" {
   count      = var.kb_role_arn != null || var.create_kb == false ? 0 : 1
   role       = aws_iam_role.bedrock_knowledge_base_role[0].name
   policy_arn = aws_iam_policy.bedrock_knowledge_base_policy[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "bedrock_kb_s3_decryption_policy_attachment" {
+  count      = local.create_kb_role && var.kb_s3_data_source_kms_arn != null ? 1 : 0
+  role       = aws_iam_role.bedrock_knowledge_base_role[0].name
+  policy_arn = aws_iam_policy.bedrock_kb_s3_decryption_policy[0].arn
 }
 
 resource "aws_iam_role_policy" "bedrock_kb_oss" {

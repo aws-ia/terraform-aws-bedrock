@@ -153,6 +153,23 @@ resource "awscc_s3_bucket" "s3_data_source" {
   count       = var.kb_s3_data_source == null && var.create_default_kb == true ? 1 : 0
   bucket_name = "${random_string.solution_prefix.result}-${var.kb_name}-default-bucket"
 
+  public_access_block_configuration = {
+    block_public_acls       = true
+    block_public_policy     = true
+    ignore_public_acls      = true
+    restrict_public_buckets = true
+  }
+
+  bucket_encryption = {
+    server_side_encryption_configuration = [{
+      bucket_key_enabled = true
+      server_side_encryption_by_default = {
+        sse_algorithm     = var.kb_s3_data_source_kms_arn == null ? "AES256" : "aws:kms"
+        kms_master_key_id = var.kb_s3_data_source_kms_arn
+      }
+    }]
+  }
+
   tags = [{
     key   = "Name"
     value = "S3 Data Source"

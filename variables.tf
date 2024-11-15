@@ -121,7 +121,7 @@ variable "override_lambda_arn" {
   default     = null
 }
 
-# – Inference Configuration – 
+# – Inference Configuration –
 
 variable "temperature" {
   description = "The likelihood of the model selecting higher-probability options while generating a response."
@@ -200,6 +200,12 @@ variable "create_default_kb" {
 
 variable "kb_s3_data_source" {
   description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "kb_s3_data_source_kms_arn" {
+  description = "The ARN of the KMS key used to encrypt S3 content"
   type        = string
   default     = null
 }
@@ -311,7 +317,7 @@ variable "endpoint" {
   default     = null
 }
 
-# – MongoDB Atlas Configuration – 
+# – MongoDB Atlas Configuration –
 
 variable "create_mongo_config" {
   description = "Whether or not to use MongoDB Atlas configuration"
@@ -327,7 +333,7 @@ variable "endpoint_service_name" {
 
 
 # – Opensearch Serverless Configuration –
-# the default vector database 
+# the default vector database
 
 variable "create_opensearch_config" {
   description = "Whether or not to use Opensearch Serverless configuration"
@@ -335,7 +341,7 @@ variable "create_opensearch_config" {
   default     = false
 }
 
-# – Pinecone Configuration – 
+# – Pinecone Configuration –
 
 variable "create_pinecone_config" {
   description = "Whether or not to use Pinecone configuration"
@@ -355,7 +361,7 @@ variable "namespace" {
   default     = null
 }
 
-# – RDS Configuration – 
+# – RDS Configuration –
 
 variable "create_rds_config" {
   description = "Whether or not to use RDS configuration"
@@ -419,7 +425,7 @@ variable "skip_resource_in_use" {
   default     = null
 }
 
-# – Action Group Executor – 
+# – Action Group Executor –
 
 variable "custom_control" {
   description = "Custom control of action execution."

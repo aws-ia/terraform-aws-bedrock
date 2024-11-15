@@ -178,6 +178,92 @@ variable "max_length" {
   }
 }
 
+# – Guardrails –
+
+variable "create_guardrail" {
+  description = "Whether or not to create a guardrail."
+  type        = bool
+  default     = false
+}
+
+variable "guardrail_name" {
+  description = "The name of the guardrail."
+  type        = string
+  default     = "TerraformBedrockGuardrail"
+}
+
+variable "blocked_input_messaging" {
+  description = "Messaging for when violations are detected in text."
+  type        = string
+  default     = "Blocked input"
+}
+
+variable "blocked_outputs_messaging" {
+  description = "Messaging for when violations are detected in text."
+  type        = string
+  default     = "Blocked output"
+}
+
+variable "guardrail_description" {
+  description = "Description of the guardrail."
+  type        = string
+  default     = null
+}
+
+variable "filters_config" {
+  description = "List of content filter configs in content policy."
+  type        = list(map(string))
+  default     = null
+}
+
+variable "pii_entities_config" {
+  description = "List of entities."
+  type        = list(map(string))
+  default     = null
+}
+
+variable "regexes_config" {
+  description = "List of regex."
+  type        = list(map(string))
+  default     = null
+}
+
+variable "managed_word_lists_config" {
+  description = "A config for the list of managed words."
+  type        = list(map(string))
+  default     = null
+}
+
+variable "words_config" {
+  description = "List of custom word configs."
+  type        = list(map(string))
+  default     = null
+}
+
+variable "topics_config" {
+  description = "List of topic configs in topic policy"
+  type        = list( object({
+                  name       = string
+                  examples   = list(string)
+                  type       = string
+                  definition = string
+                }))
+  default     = null
+}
+
+variable "guardrail_tags" {
+  description = "A map of tags keys and values for the knowledge base."
+  type        = list(map(string))
+  default     = null
+}
+
+variable "guardrail_kms_key_arn" {
+  description = "KMS encryption key to use for the guardrail."
+  type        = string
+  default     = null
+}
+
+
 # – Knowledge Base –
 
 variable "existing_kb" {

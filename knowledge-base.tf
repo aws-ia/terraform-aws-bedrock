@@ -1,4 +1,8 @@
 # - Knowledge Base Default OpenSearch -
+locals {
+  create_cwl      = var.create_default_kb && var.create_kb_log_group
+  create_delivery = local.create_cwl || var.kb_monitoring_arn != null
+}
 
 resource "awscc_bedrock_knowledge_base" "knowledge_base_default" {
   count       = var.create_default_kb ? 1 : 0
@@ -9,7 +13,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_default" {
   storage_configuration = {
     type = "OPENSEARCH_SERVERLESS"
     opensearch_serverless_configuration = {
-      collection_arn    =  awscc_opensearchserverless_collection.default_collection[0].arn
+      collection_arn    = awscc_opensearchserverless_collection.default_collection[0].arn
       vector_index_name = opensearch_index.default_oss_index[0].name
       field_mapping = {
         metadata_field = var.metadata_field
@@ -187,4 +191,40 @@ resource "aws_bedrockagent_data_source" "knowledge_base_ds" {
       bucket_arn = var.kb_s3_data_source == null ? awscc_s3_bucket.s3_data_source[0].arn : var.kb_s3_data_source # Create an S3 bucket or reference existing
     }
   }
+}
+
+resource "aws_cloudwatch_log_group" "knowledge_base_cwl" {
+  #tfsec:ignore:log-group-customer-key
+  #checkov:skip=CKV_AWS_158:Encryption not required for log group
+  count             = local.create_cwl ? 1 : 0
+  name              = "/aws/vendedlogs/bedrock/knowledge-base/APPLICATION_LOGS/${awscc_bedrock_knowledge_base.knowledge_base_default[0].id}"
+  retention_in_days = var.kb_log_group_retention_in_days
+}
+
+resource "awscc_logs_delivery_source" "knowledge_base_log_source" {
+  count        = local.create_delivery ? 1 : 0
+  name         = "${random_string.solution_prefix.result}-${var.kb_name}-delivery-source"
+  log_type     = "APPLICATION_LOGS"
+  resource_arn = awscc_bedrock_knowledge_base.knowledge_base_default[0].knowledge_base_arn
+}
+
+resource "awscc_logs_delivery_destination" "knowledge_base_log_destination" {
+  count                    = local.create_delivery ? 1 : 0
+  name                     = "${random_string.solution_prefix.result}-${var.kb_name}-delivery-destination"
+  output_format            = "json"
+  destination_resource_arn = local.create_cwl ? aws_cloudwatch_log_group.knowledge_base_cwl[0].arn : var.kb_monitoring_arn
+  tags = [{
+    key   = "Name"
+    value = "${random_string.solution_prefix.result}-${var.kb_name}-delivery-destination"
+  }]
+}
+
+resource "awscc_logs_delivery" "knowledge_base_log_delivery" {
+  count                    = local.create_delivery ? 1 : 0
+  delivery_destination_arn = awscc_logs_delivery_destination.knowledge_base_log_destination[0].arn
+  delivery_source_name     = awscc_logs_delivery_source.knowledge_base_log_source[0].name
+  tags = [{
+    key   = "Name"
+    value = "${random_string.solution_prefix.result}-${var.kb_name}-delivery"
+  }]
 }

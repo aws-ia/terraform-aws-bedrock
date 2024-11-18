@@ -403,6 +403,28 @@ variable "endpoint" {
   default     = null
 }
 
+variable "kb_monitoring_arn" {
+  description = "The ARN of the target for delivery of knowledge base application logs"
+  type        = string
+  default     = null
+}
+
+variable "create_kb_log_group" {
+  description = "Whether or not to create a log group for the knowledge base."
+  type        = bool
+  default     = false
+}
+
+variable "kb_log_group_retention_in_days" {
+  description = "The retention period of the knowledge base log group."
+  type        = number
+  default     = 0
+  validation {
+    condition     = contains([1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1096, 1827, 2192, 2557, 2922, 3288, 3653, 0], var.kb_log_group_retention_in_days)
+    error_message = "The provided retention period is not a valid CloudWatch logs retention period"
+  }
+}
+
 # – MongoDB Atlas Configuration –
 
 variable "create_mongo_config" {

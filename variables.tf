@@ -290,6 +290,108 @@ variable "kb_s3_data_source" {
   default     = null
 }
 
+variable "chunking_strategy" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "chunking_max_tokens" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "overlap_percentage" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "level_max_tokens" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "overlap_tokens" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "breakpoint_percentile_threshold" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "buffer_size" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "s3_location_uri" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "step_to_apply" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "lambda_arn_transformation" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "model_arn" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "parsing_prompt_string" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "parsing_strategy" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "semantic_max_tokens" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = string
+  default     = null
+}
+
+variable "fixed_size_chunking_configuration" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = bool
+  default     = true
+}
+
+variable "hierarchical_chunking_configuration" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = bool
+  default     = false
+}
+
+variable "semantic_chunking_configuration" {
+  description = "The S3 data source ARN for the knowledge base."
+  type        = bool
+  default     = false
+}
+
 variable "kb_name" {
   description = "Name of the knowledge base."
   type        = string

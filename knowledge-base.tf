@@ -2,6 +2,38 @@
 locals {
   create_cwl      = var.create_default_kb && var.create_kb_log_group
   create_delivery = local.create_cwl || var.kb_monitoring_arn != null
+
+  chunking_count = var.create_default_kb && (var.semantic_chunking_configuration || var.hierarchical_chunking_configuration || var.fixed_size_chunking_configuration) ? [1] : []
+  chunking_strategy_values = var.fixed_size_chunking_configuration ? {
+        chunking_strategy = var.chunking_strategy
+        fixed_size_chunking_configuration  = { 
+          max_tokens = var.chunking_max_tokens
+          overlap_percentage = var.overlap_percentage
+        }
+  } : ( var.hierarchical_chunking_configuration ? {
+    chunking_strategy = var.chunking_strategy
+     hierarchical_chunking_configuration = {
+        level_configuration = {
+          
+            max_tokens = var.level_max_tokens
+          
+
+        } 
+        overlap_tokens = var.overlap_tokens
+      }
+    } : ( var.semantic_chunking_configuration ? {
+          chunking_strategy = var.chunking_strategy
+          semantic_chunking_configuration = {
+              breakpoint_percentile_threshold = var.breakpoint_percentile_threshold
+              buffer_size = var.buffer_size
+              max_token = var.semantic_max_tokens
+            }
+        } : null)) 
+
+
+  chunking_strategy = [for count in local.chunking_count : local.chunking_strategy_values]
+
+  
 }
 
 resource "awscc_bedrock_knowledge_base" "knowledge_base_default" {
@@ -172,6 +204,37 @@ resource "aws_bedrockagent_data_source" "knowledge_base_ds" {
     type = "S3"
     s3_configuration {
       bucket_arn = var.kb_s3_data_source == null ? awscc_s3_bucket.s3_data_source[0].arn : var.kb_s3_data_source # Create an S3 bucket or reference existing
+    }
+  }
+  vector_ingestion_configuration { 
+    chunking_configuration {
+      chunking_strategy = var.chunking_strategy
+    } 
+    
+    custom_transformation_configuration {
+      intermediate_storage {
+        s3_location {
+          uri = var.s3_location_uri
+        } 
+      }
+      transformation {
+        step_to_apply = var.step_to_apply
+        transformation_function {
+          transformation_lambda_configuration {
+            lambda_arn = var.lambda_arn_transformation
+          }
+        }
+      }
+  
+    }
+    parsing_configuration { 
+      bedrock_foundation_model_configuration {
+        model_arn = var.model_arn
+        parsing_prompt {
+          parsing_prompt_string = var.parsing_prompt_string
+        }
+      }
+      parsing_strategy = var.parsing_strategy
     }
   }
 }

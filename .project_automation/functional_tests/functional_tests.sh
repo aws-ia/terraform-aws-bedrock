@@ -7,6 +7,10 @@ PROJECT_TYPE_PATH=${BASE_PATH}/projecttype
 
 echo "Starting Functional Tests"
 cd ${PROJECT_PATH}
+echo "---------------------------------------------------------------------------"
+git log --max-count=1
+echo "---------------------------------------------------------------------------"
+
 
 #********** Terraform Test **********
 
@@ -15,8 +19,8 @@ MANDATORY_TEST_PATH="./tests/01_mandatory.tftest.hcl"
 if test -f ${MANDATORY_TEST_PATH}; then
     echo "File ${MANDATORY_TEST_PATH} is found, resuming test"
     # Run Terraform test
-    terraform init
-    terraform test
+    terraform init -no-color
+    terraform test -no-color
 else
     echo "File ${MANDATORY_TEST_PATH} not found. You must include at least one test run in file ${MANDATORY_TEST_PATH}"
     (exit 1)

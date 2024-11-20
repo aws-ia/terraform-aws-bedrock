@@ -243,6 +243,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_bedrock_agent"></a> [bedrock\_agent](#output\_bedrock\_agent) | The Amazon Bedrock Agent if it is created. |
 | <a name="output_cloudwatch_log_group"></a> [cloudwatch\_log\_group](#output\_cloudwatch\_log\_group) | The name of the CloudWatch log group for the knowledge base.  If no log group was requested, value will be null |
 | <a name="output_datasource_identifier"></a> [datasource\_identifier](#output\_datasource\_identifier) | The unique identifier of the data source. |
 | <a name="output_default_collection"></a> [default\_collection](#output\_default\_collection) | Opensearch default collection value. |

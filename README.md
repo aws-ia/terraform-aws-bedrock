@@ -37,9 +37,11 @@ module "bedrock" {
 
 ### Knowledge Base - Data Sources
 
-Data sources are the various repositories or systems from which information is extracted and ingested into the knowledge base. These sources provide the raw content that will be processed, indexed, and made available for querying within the knowledge base system. Data sources can include various types of systems such as document management systems, databases, file storage systems, and content management platforms. Supported Data Sources include Amazon S3 buckets.
+Data sources are the various repositories or systems from which information is extracted and ingested into the knowledge base. These sources provide the raw content that will be processed, indexed, and made available for querying within the knowledge base system. Data sources can include various types of systems such as document management systems, databases, file storage systems, and content management platforms. Supported Data Sources include Amazon S3 buckets and Web Crawlers.
 
-- Amazon S3. You can either create a new data source by passing in the existing data source arn to the input variable `kb_s3_data_source` or create a new one by leaving that value as `null` when `create_default_kb` is set to true.
+- Amazon S3. You can either create a new data source by passing in the existing data source arn to the input variable `kb_s3_data_source` or create a new one by setting `create_s3_data_source` to true.
+
+- Web Crawler. You can create a new web crawler data source by setting the `create_web_crawler` input variable to true and passing in the necessary variables for urls, scope, etc.
 
 ## Agents
 
@@ -82,6 +84,79 @@ The Agent constructs take an optional parameter shouldPrepareAgent to indicate t
 ### Prompt Overrides
 
 Bedrock Agents allows you to customize the prompts and LLM configuration for its different steps. You can disable steps or create a new prompt template. Prompt templates can be inserted from plain text files.
+
+## Bedrock Guardrails
+
+Amazon Bedrock's Guardrails feature enables you to implement robust governance and control mechanisms for your generative AI applications, ensuring alignment with your specific use cases and responsible AI policies. Guardrails empowers you to create multiple tailored policy configurations, each designed to address the unique requirements and constraints of different use cases. These policy configurations can then be seamlessly applied across multiple foundation models (FMs) and Agents, ensuring a consistent user experience and standardizing safety, security, and privacy controls throughout your generative AI ecosystem.
+
+With Guardrails, you can define and enforce granular, customizable policies to precisely govern the behavior of your generative AI applications. You can configure the following policies in a guardrail to avoid undesirable and harmful content and remove sensitive information for privacy protection.
+
+Content filters – Adjust filter strengths to block input prompts or model responses containing harmful content.
+
+Denied topics – Define a set of topics that are undesirable in the context of your application. These topics will be blocked if detected in user queries or model responses.
+
+Word filters – Configure filters to block undesirable words, phrases, and profanity. Such words can include offensive terms, competitor names etc.
+
+Sensitive information filters – Block or mask sensitive information such as personally identifiable information (PII) or custom regex in user inputs and model responses.
+
+You can create a Guardrail by setting `create_guardrail` to true and passing in the appropriate input variables:
+
+```
+module "bedrock" {
+  source = "../.." # local example
+  create_kb = false
+  create_default_kb = false
+  create_guardrail = true
+  blocked_input = "Blocked input"
+  blocked_output = "Blocked output"
+  filters_config = [
+      {
+        input_strength  = "MEDIUM"
+        output_strength = "MEDIUM"
+        type            = "HATE"
+      },
+      {
+        input_strength  = "HIGH"
+        output_strength = "HIGH"
+        type            = "VIOLENCE"
+      }
+  ]
+  pii_entities_config = [
+      {
+        action = "BLOCK"
+        type   = "NAME"
+      },
+      {
+        action = "BLOCK"
+        type   = "DRIVER_ID"
+      },
+      {
+        action = "ANONYMIZE"
+        type   = "USERNAME"
+      },
+  ]
+  regexes_config = [{
+      action      = "BLOCK"
+      description = "example regex"
+      name        = "regex_example"
+      pattern     = "^\\d{3}-\\d{2}-\\d{4}$"
+  }]
+  managed_word_lists_config = [{
+      type = "PROFANITY"
+  }]
+  words_config = [{
+    text = "HATE"
+  }]
+  topics_config = [{
+      name       = "investment_topic"
+      examples   = ["Where should I invest my money ?"]
+      type       = "DENY"
+      definition = "Investment advice refers to inquiries, guidance, or recommendations regarding the management or allocation of funds or assets with the goal of generating returns ."
+  }]
+  foundation_model = "anthropic.claude-v2"
+  instruction = "You are an automotive assisant who can provide detailed information about cars to a customer."
+}
+```
 
 ## Requirements
 

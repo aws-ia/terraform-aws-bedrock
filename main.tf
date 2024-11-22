@@ -35,17 +35,6 @@ locals {
       custom_control = var.custom_control
       lambda         = var.lambda_action_group_executor
     }
-    function_schema = {
-      functions = [{
-        name        = var.function_name
-        description = var.function_description
-        parameters = {
-          description = var.function_parameters_description
-          required    = var.function_parameters_required
-          type        = var.function_parameters_type
-        }
-      }]
-    }
   }
   action_group_result = [for count in local.counter_action_group : local.action_group_value]
 

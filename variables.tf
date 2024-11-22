@@ -284,6 +284,14 @@ variable "create_default_kb" {
   default     = false
 }
 
+# – S3 Data Source –
+
+variable "create_s3_data_source" {
+  description = "Whether or not to create the S3 data source."
+  type        = bool
+  default     = true
+}
+
 variable "kb_s3_data_source" {
   description = "The S3 data source ARN for the knowledge base."
   type        = string
@@ -295,6 +303,45 @@ variable "kb_s3_data_source_kms_arn" {
   type        = string
   default     = null
 }
+
+# – Web Crawler Data Source – 
+variable "create_web_crawler" {
+  description = "Whether or not create a web crawler data source."
+  type        = bool
+  default     = false
+}
+
+variable "rate_limit" {
+  description = "Rate of web URLs retrieved per minute."
+  type        = number
+  default     = null
+}
+
+variable "exclusion_filters" {
+  description = "A set of regular expression filter patterns for a type of object."
+  type        = list(string)
+  default     = []
+}
+
+variable "inclusion_filters" {
+  description = "A set of regular expression filter patterns for a type of object."
+  type        = list(string)
+  default     = []
+}
+
+variable "crawler_scope" {
+  description = "The scope that a web crawl job will be restricted to."
+  type        = string
+  default     = null
+}
+
+variable "seed_urls" {
+  description = "A list of web urls."
+  type        = list(object({url = string}))
+  default     = []
+}
+
+# – Knowledge base – 
 
 variable "kb_name" {
   description = "Name of the knowledge base."
@@ -563,38 +610,6 @@ variable "api_schema_s3_bucket_name" {
 
 variable "api_schema_s3_object_key" {
   description = "An object key in S3."
-  type        = string
-  default     = null
-}
-
-# – Function Schema –
-
-variable "function_name" {
-  description = "Name for a resource."
-  type        = string
-  default     = null
-}
-
-variable "function_description" {
-  description = "Description of function."
-  type        = string
-  default     = null
-}
-
-variable "function_parameters_description" {
-  description = "Description of function parameter."
-  type        = string
-  default     = null
-}
-
-variable "function_parameters_required" {
-  description = "If a parameter is required for a function call."
-  type        = bool
-  default     = false
-}
-
-variable "function_parameters_type" {
-  description = "Parameter type."
   type        = string
   default     = null
 }

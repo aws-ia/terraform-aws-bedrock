@@ -26,6 +26,7 @@ module "bedrock" {
   source = "../.." # local example
   create_kb = false
   create_default_kb = false
+  create_s3_data_source = false
   foundation_model = "anthropic.claude-v2"
   instruction = "You are an automotive assisant who can provide detailed information about cars to a customer."
 }

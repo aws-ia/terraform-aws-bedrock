@@ -74,7 +74,11 @@ resource "aws_opensearchserverless_access_policy" "data_policy" {
             "index/${awscc_opensearchserverless_collection.default_collection[0].name}/*"
           ]
           Permission = [
-            "aoss:*"
+            "aoss:UpdateIndex",
+            "aoss:DescribeIndex",
+            "aoss:ReadDocument",
+            "aoss:WriteDocument",
+            "aoss:CreateIndex"
           ]
         },
         {
@@ -83,7 +87,9 @@ resource "aws_opensearchserverless_access_policy" "data_policy" {
             "collection/${awscc_opensearchserverless_collection.default_collection[0].name}"
           ]
           Permission = [
-            "aoss:*"
+            "aoss:DescribeCollectionItems",
+            "aoss:CreateCollectionItems",
+            "aoss:UpdateCollectionItems"
           ]
         }
       ],

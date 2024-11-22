@@ -3,6 +3,7 @@ locals {
   create_kb_role = var.kb_role_arn == null && var.create_default_kb
 }
 
+
 resource "aws_iam_role" "agent_role" {
   count              = var.create_agent ? 1 : 0
   assume_role_policy = data.aws_iam_policy_document.agent_trust[0].json
@@ -51,7 +52,7 @@ resource "aws_iam_policy" "bedrock_knowledge_base_policy" {
       {
         "Effect" : "Allow",
         "Action" : [
-          "aoss:*"
+          "aoss:APIAccessAll"
         ],
         "Resource" : awscc_opensearchserverless_collection.default_collection[0].arn
       },

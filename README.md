@@ -27,7 +27,7 @@ provider "opensearch" {
 
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.1"
+  version = "0.0.3"
   create_kb = true
   create_default_kb = true
   foundation_model = "anthropic.claude-v2"
@@ -54,7 +54,7 @@ The following example creates an Agent with a simple instruction and without any
 ```
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.1"
+  version = "0.0.3"
   foundation_model = "anthropic.claude-v2"
   instruction = "You are an automotive assisant who can provide detailed information about cars to a customer."
 }
@@ -65,7 +65,7 @@ To create an Agent with a default Knowledge Base you simply set `create_kb` and 
 ```
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.1"
+  version = "0.0.3"
   create_kb = true
   create_default_kb = true
   foundation_model = "anthropic.claude-v2"
@@ -103,7 +103,8 @@ You can create a Guardrail by setting `create_guardrail` to true and passing in 
 
 ```
 module "bedrock" {
-  source = "../.." # local example
+  source  = "aws-ia/bedrock/aws"
+  version = "0.0.3"
   create_kb = false
   create_default_kb = false
   create_guardrail = true

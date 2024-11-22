@@ -1,0 +1,120 @@
+{
+    "widgets": [
+        {
+            "type": "metric",
+            "x": 6,
+            "y": 0,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", "${sqs_queue_name}" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${region}",
+                "stat": "Sum",
+                "period": 60,
+                "title": "Data Source Pending Changes"
+            }
+        },
+        {
+            "type": "alarm",
+            "x": 18,
+            "y": 0,
+            "width": 4,
+            "height": 2,
+            "properties": {
+                "title": "Pending Changes Alarm",
+                "alarms": [
+                    "${alarm_arn}"
+                ]
+            }
+        },
+        {
+            "type": "metric",
+            "x": 6,
+            "y": 6,
+            "width": 12,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "${kb_metrics_namespace}", "DeletedCount", "DataSourceId", "${data_source_id}" ],
+                    [ ".", "IndexedCount", ".", "." ],
+                    [ ".", "FailedCount", ".", "." ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${region}",
+                "stat": "Sum",
+                "period": 60,
+                "title": "KB Ingestion Counts"
+            }
+        },
+        {
+            "type": "text",
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 6,
+            "properties": {
+                "markdown": "# Pending Changes \n\nThe datasource(s) associated with the Bedrock knowledge base publish add/update/delete events to SQS.  When the event count reaches the threshold, the CloudWatch alarm goes off.  This will clear the associated SQS queue and schedule a sync.  In addition to the alarm, there is also an associated EventBridge schedule.  This schedule enforces the maximum latency for document ingestion into the data source.\n\nSet the alarm's threshold and period according to business needs.\n"
+            }
+        },
+        {
+            "type": "text",
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 6,
+            "properties": {
+                "markdown": "# Ingestion Counts \n\nThe ingestion count metrics come from a CloudWatch metric filter on the [application logs of the sync job](https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-bases-logging.html).  There are three possible metrics:\n* `IndexedCount` is any document that is partially or completely indexed\n* `DeletedCount` is any document that was deleted from the associated data source\n* `FailedCount` is any document that could not be ingested.  Check the `status_reasons` field in CloudWatch Logs for more information. "
+            }
+        },
+        {
+            "type": "text",
+            "x": 0,
+            "y": 12,
+            "width": 6,
+            "height": 6,
+            "properties": {
+                "markdown": "# Sync Trigger Monitoring \n\nThe sync trigger uses an AWS Lambda function to check for a running ingestion job before starting a new job.  The Lambda function also purges the SQS queue.  Monitor the Lambda function for failed invocations or dead letter queue depth."
+            }
+        },
+        {
+            "type": "metric",
+            "x": 6,
+            "y": 12,
+            "width": 6,
+            "height": 6,
+            "properties": {
+                "metrics": [
+                    [ "AWS/Lambda", "Invocations", "FunctionName", "${lambda_function_name}" ],
+                    [ ".", "Errors", ".", "." ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${region}",
+                "stat": "Sum",
+                "period": 60,
+                "title": "Lambda Invocations and Errors"
+            }
+        },
+        {
+            "type": "metric",
+            "x": 12,
+            "y": 12,
+            "width": 6,
+            "height": 6,
+            "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                    [ "AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", "${dlq_name}" ]
+                ],
+                "region": "${region}",
+                "title": "Failed Sync Invocations"
+            }
+        }
+    ]
+}

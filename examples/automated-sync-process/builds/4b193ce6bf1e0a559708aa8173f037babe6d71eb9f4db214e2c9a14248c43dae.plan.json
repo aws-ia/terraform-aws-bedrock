@@ -1,1 +1,0 @@
-{"filename": "builds/4b193ce6bf1e0a559708aa8173f037babe6d71eb9f4db214e2c9a14248c43dae.zip", "runtime": "python3.12", "artifacts_dir": "builds", "build_plan": [["pip", "python3.12", "src/kb-sync-trigger/requirements.txt", null, null], ["zip", "src/kb-sync-trigger", null]]}

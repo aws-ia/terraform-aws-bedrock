@@ -9,6 +9,7 @@ module "bedrock" {
   create_kb = false
   create_default_kb = false
   create_guardrail = true
+  create_s3_data_source = false
   filters_config = [
       {
         input_strength  = "MEDIUM"

@@ -67,5 +67,8 @@ override.tf.json
 terraform.rc
 .terraform.lock.hcl
 
+# Exclude Lambda build artifacts
+**/builds/*
+
 go.mod
 go.sum

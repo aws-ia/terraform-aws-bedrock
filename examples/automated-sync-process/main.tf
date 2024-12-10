@@ -137,7 +137,7 @@ module "trigger_lambda" {
 
   handler                  = "app.lambda_handler"
   runtime                  = "python3.12"
-  architectures            = ["arm64"]
+  architectures            = [var.lambda_architecture]
   logging_system_log_level = "INFO"
   policy_json              = data.aws_iam_policy_document.trigger_lambda.json
   attach_policy_json       = true

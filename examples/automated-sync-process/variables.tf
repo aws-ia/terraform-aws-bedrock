@@ -28,3 +28,14 @@ variable "sync_job_schedule" {
   // https://docs.aws.amazon.com/scheduler/latest/UserGuide/schedule-types.html
   default = "rate(1 hours)"
 }
+
+variable "lambda_architecture" {
+  type        = string
+  description = "Runtime architecture of the Lambda function"
+  default = "arm64"
+
+  validation {
+    condition     = contains(["arm64", "x86_64"], var.lambda_architecture)
+    error_message = "Must be a valid Lambda runtime architecture"
+  }
+}

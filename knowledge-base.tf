@@ -23,6 +23,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_default" {
       embedding_model_arn = var.kb_embedding_model_arn
     }
   }
+  depends_on = [ time_sleep.wait_after_index_creation ]
 }
 
 # – Existing KBs –

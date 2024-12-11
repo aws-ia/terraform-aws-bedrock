@@ -72,3 +72,6 @@ terraform.rc
 
 go.mod
 go.sum
+
+.venv
+.ruby-version

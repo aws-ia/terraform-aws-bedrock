@@ -1,5 +1,5 @@
 <!-- BEGIN_TF_DOCS -->
-This example shows how to deploy a basic Bedrock agent, leaving the default values and without creating an action group or a knowledgebase.
+This example shows how to deploy a basic Bedrock agent with agent alias, leaving the default values and without creating an action group or a knowledgebase.
 
 ## Requirements
 

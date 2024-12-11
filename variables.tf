@@ -178,6 +178,44 @@ variable "max_length" {
   }
 }
 
+# – Agent Alias – 
+
+variable "create_agent_alias" {
+  description = "Whether or not to create an agent alias."
+  type        = bool
+  default     = false
+}
+
+variable "agent_alias_name" {
+  description = "The name of the guardrail."
+  type        = string
+  default     = "TerraformBedrockAgentAlias"
+}
+
+variable "agent_id" {
+  description = "Agent identifier."
+  type        = string
+  default     = null
+}
+
+variable "agent_alias_description" {
+  description = "Description of the agent alias."
+  type        = string
+  default     = null
+}
+
+variable "bedrock_agent_version" {
+  description = "Agent version."
+  type        = string
+  default     = null
+}
+
+variable "agent_alias_tags" {
+  description = "Tag bedrock agent alias resource."
+  type        = map(string)
+  default     = null
+}
+
 # – Guardrails –
 
 variable "create_guardrail" {

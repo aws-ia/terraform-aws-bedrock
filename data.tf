@@ -32,9 +32,14 @@ data "aws_iam_policy_document" "agent_trust" {
 data "aws_iam_policy_document" "agent_permissions" {
   count = var.create_agent ? 1 : 0
   statement {
-    actions = ["bedrock:InvokeModel"]
+    actions = [
+      "bedrock:InvokeModel",
+      "bedrock:InvokeModelWithResponseStream"
+    ]
     resources = [
       "arn:${local.partition}:bedrock:${local.region}::foundation-model/${var.foundation_model}",
+      "arn:${local.partition}:bedrock:*::foundation-model/${var.foundation_model}",
+      "arn:${local.partition}:bedrock:${local.region}:${local.account_id}:inference-profile/*.${var.foundation_model}",
     ]
   }
 }

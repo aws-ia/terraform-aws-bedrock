@@ -80,6 +80,21 @@ resource "awscc_bedrock_agent" "bedrock_agent" {
   }
 }
 
+# Agent Alias
+
+resource "awscc_bedrock_agent_alias"  "bedrock_agent_alias" {
+  count            = var.create_agent_alias ? 1 : 0
+  agent_alias_name = var.agent_alias_name
+  agent_id         = var.create_agent ? awscc_bedrock_agent.bedrock_agent[0].id : var.agent_id
+  description      = var.agent_alias_description
+  routing_configuration = var.bedrock_agent_version == null ? null : [
+    {
+      agent_version = var.bedrock_agent_version
+    }
+  ]
+  tags = var.agent_alias_tags
+}
+
 # – Guardrail –
 
 resource "awscc_bedrock_guardrail" "guardrail" {

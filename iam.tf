@@ -155,3 +155,47 @@ resource "aws_iam_role_policy" "bedrock_kb_oss" {
     ]
   })
 }
+
+# Guardrails Policies
+
+resource "aws_iam_role_policy" "guardrail_policy" {
+  count = var.create_guardrail ? 1 : 0
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:ApplyGuardrail",
+        ]
+        Resource = awscc_bedrock_agent.bedrock_agent[0].guardrail_configuration.guardrail_identifier
+      }
+    ]
+  })
+  role = aws_iam_role.agent_role[0].id
+}
+
+# Action Group Policies
+
+resource "aws_lambda_permission" "allow_bedrock_agent" {
+  count = var.create_ag ? 1 : 0
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_action_group_executor
+  principal     = "bedrock.amazonaws.com"
+  source_arn    = awscc_bedrock_agent.bedrock_agent[0].agent_arn
+}
+
+resource "aws_iam_role_policy" "action_group_policy" {
+  count = var.create_ag ? 1 : 0
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "lambda:InvokeModel"
+        Resource = var.lambda_action_group_executor
+      }
+    ]
+  })
+  role = aws_iam_role.agent_role[0].id
+}

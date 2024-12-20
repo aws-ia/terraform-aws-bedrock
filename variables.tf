@@ -20,15 +20,17 @@ variable "create_agent" {
 variable "foundation_model" {
   description = "The foundation model for the Bedrock agent."
   type        = string
+  default     = null
 }
 
 # instruction must be greater than 40 characters
 variable "instruction" {
   description = "A narrative instruction to provide the agent as context."
   type        = string
+  default     = ""
 
   validation {
-    condition     = length(var.instruction) >= 40
+    condition     = length(var.instruction) == 0 || length(var.instruction) >= 40 
     error_message = "Instruction string length must be at least 40."
   }
 }
@@ -745,5 +747,91 @@ variable "api_schema_s3_bucket_name" {
 variable "api_schema_s3_object_key" {
   description = "An object key in S3."
   type        = string
+  default     = null
+}
+
+# – Prompt Management – 
+
+variable "prompt_name" {
+  description = "Name for a prompt resource."
+  type        = string
+  default     = null
+}
+
+variable "prompt_description" {
+  description = "Description for a prompt resource."
+  type        = string
+  default     = null
+}
+
+variable "customer_encryption_key_arn" {
+  description = "A KMS key ARN."
+  type        = string
+  default     = null
+}
+
+variable "default_variant" {
+  description = "Name for a variant."
+  type        = string
+  default     = null
+}
+
+variable "create_prompt" {
+  description = "Whether or not to create a prompt resource."
+  type        = bool
+  default     = false
+}
+
+variable "prompt_tags" {
+  description = "A map of tag keys and values for prompt resource."
+  type        = map(string)
+  default     = null
+}
+
+variable "variants_list" {
+  description = "List of prompt variants."
+  type = list(object({
+    name                    = optional(string)
+    template_type           = optional(string)
+    model_id                = optional(string)
+    inference_configuration = optional(object({
+                                text = optional(object({
+                                  max_tokens = optional(number)
+                                  stop_sequences = optional(list(string))
+                                  temperature = optional(number)
+                                  top_p = optional(number)
+                                }))
+                              }))
+
+    template_configuration  = optional(object({
+                                text = optional(object({
+                                  input_variables = optional(list(object({ name = optional(string) })))
+                                  text = optional(string)
+                                  text_s3_location = optional(object({
+                                    bucket = optional(string)
+                                    key = optional(string)
+                                    version = optional(string)
+                                  }))
+                                }))
+                              }))
+  }))
+  default = null
+}
+
+variable "create_prompt_version" {
+  description = "Whether or not to create a prompt version."
+  type        = bool
+  default     = false
+}
+
+variable "prompt_version_description" {
+  description = "Description for a prompt version resource."
+  type        = string
+  default     = null
+}
+
+variable "prompt_version_tags" {
+  description = "A map of tag keys and values for a prompt version resource."
+  type        = map(string)
   default     = null
 }

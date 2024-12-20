@@ -165,6 +165,97 @@ module "bedrock" {
 }
 ```
 
+## Prompt Management
+
+Amazon Bedrock provides the ability to create and save prompts using Prompt management so that you can save time by applying the same prompt to different workflows. You can include variables in the prompt so that you can adjust the prompt for different use case.
+
+### Prompt Variants
+
+Prompt variants in the context of Amazon Bedrock refer to alternative configurations of a prompt, including its message or the model and inference configurations used. Prompt variants allow you to create different versions of a prompt, test them, and save the variant that works best for your use case. You can add prompt variants to a prompt by passing in the values for the ```variants_list
+``` variable:
+
+```hcl
+  variants_list = [
+    {
+      name          = "variant-example"
+      template_type = "TEXT"
+      model_id      = "amazon.titan-text-express-v1"
+      inference_configuration = {
+        text = {
+          temperature    = 1
+          top_p          = 0.9900000095367432
+          max_tokens     = 300
+          stop_sequences = ["User:"]
+          top_k          = 250
+        }
+      }
+      template_configuration = {
+        text = {
+          input_variables = [
+            {
+              name = "topic"
+            }
+          ]
+          text = "Make me a {{genre}} playlist consisting of the following number of songs: {{number}}."
+        }
+      }
+    }
+  ]
+```
+
+### Prompt Version
+
+A prompt version is a snapshot of a prompt at a specific point in time that you create when you are satisfied with a set of configurations. Versions allow you to deploy your prompt and easily switch between different configurations for your prompt and update your application with the most appropriate version for your use-case.
+
+You can create a Prompt version by setting `create_prompt_version` to true and adding an optional `prompt_version_description` and optional `prompt_version_tags`.
+
+Creating a prompt with a prompt version would look like:
+
+```hcl
+module "bedrock" {
+  source = "../.." # local example
+  create_kb = false
+  create_default_kb = false
+  create_s3_data_source = false
+  create_agent = false
+
+  # Prompt Management
+  prompt_name = "prompt"
+  default_variant = "variant-example"
+  create_prompt = true
+  create_prompt_version = true
+  prompt_version_description = "Example prompt version"
+  variants_list = [
+    {
+      name          = "variant-example"
+      template_type = "TEXT"
+      model_id      = "amazon.titan-text-express-v1"
+      inference_configuration = {
+        text = {
+          temperature    = 1
+          top_p          = 0.9900000095367432
+          max_tokens     = 300
+          stop_sequences = ["User:"]
+          top_k          = 250
+        }
+      }
+      template_configuration = {
+        text = {
+          input_variables = [
+            {
+              name = "topic"
+            }
+          ]
+          text = "Make me a {{genre}} playlist consisting of the following number of songs: {{number}}."
+        }
+      }
+    }
+
+  ]
+
+}
+```
+
 ## Requirements
 
 | Name | Version |
@@ -223,6 +314,8 @@ No modules.
 | [awscc_bedrock_knowledge_base.knowledge_base_opensearch](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_pinecone](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_rds](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
+| [awscc_bedrock_prompt.prompt](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_prompt) | resource |
+| [awscc_bedrock_prompt_version.prompt_version](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_prompt_version) | resource |
 | [awscc_logs_delivery.knowledge_base_log_delivery](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/logs_delivery) | resource |
 | [awscc_logs_delivery_destination.knowledge_base_log_destination](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/logs_delivery_destination) | resource |
 | [awscc_logs_delivery_source.knowledge_base_log_source](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/logs_delivery_source) | resource |
@@ -243,8 +336,6 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_foundation_model"></a> [foundation\_model](#input\_foundation\_model) | The foundation model for the Bedrock agent. | `string` | n/a | yes |
-| <a name="input_instruction"></a> [instruction](#input\_instruction) | A narrative instruction to provide the agent as context. | `string` | n/a | yes |
 | <a name="input_action_group_description"></a> [action\_group\_description](#input\_action\_group\_description) | Description of the action group. | `string` | `null` | no |
 | <a name="input_action_group_name"></a> [action\_group\_name](#input\_action\_group\_name) | Name of the action group. | `string` | `null` | no |
 | <a name="input_action_group_state"></a> [action\_group\_state](#input\_action\_group\_state) | State of the action group. | `string` | `null` | no |
@@ -279,6 +370,8 @@ No modules.
 | <a name="input_create_mongo_config"></a> [create\_mongo\_config](#input\_create\_mongo\_config) | Whether or not to use MongoDB Atlas configuration | `bool` | `false` | no |
 | <a name="input_create_opensearch_config"></a> [create\_opensearch\_config](#input\_create\_opensearch\_config) | Whether or not to use Opensearch Serverless configuration | `bool` | `false` | no |
 | <a name="input_create_pinecone_config"></a> [create\_pinecone\_config](#input\_create\_pinecone\_config) | Whether or not to use Pinecone configuration | `bool` | `false` | no |
+| <a name="input_create_prompt"></a> [create\_prompt](#input\_create\_prompt) | Whether or not to create a prompt resource. | `bool` | `false` | no |
+| <a name="input_create_prompt_version"></a> [create\_prompt\_version](#input\_create\_prompt\_version) | Whether or not to create a prompt version. | `bool` | `false` | no |
 | <a name="input_create_rds_config"></a> [create\_rds\_config](#input\_create\_rds\_config) | Whether or not to use RDS configuration | `bool` | `false` | no |
 | <a name="input_create_s3_data_source"></a> [create\_s3\_data\_source](#input\_create\_s3\_data\_source) | Whether or not to create the S3 data source. | `bool` | `true` | no |
 | <a name="input_create_salesforce"></a> [create\_salesforce](#input\_create\_salesforce) | Whether or not create a Salesforce data source. | `bool` | `false` | no |
@@ -286,12 +379,15 @@ No modules.
 | <a name="input_create_web_crawler"></a> [create\_web\_crawler](#input\_create\_web\_crawler) | Whether or not create a web crawler data source. | `bool` | `false` | no |
 | <a name="input_credentials_secret_arn"></a> [credentials\_secret\_arn](#input\_credentials\_secret\_arn) | The ARN of the secret in Secrets Manager that is linked to your database | `string` | `null` | no |
 | <a name="input_custom_control"></a> [custom\_control](#input\_custom\_control) | Custom control of action execution. | `string` | `null` | no |
+| <a name="input_customer_encryption_key_arn"></a> [customer\_encryption\_key\_arn](#input\_customer\_encryption\_key\_arn) | A KMS key ARN. | `string` | `null` | no |
 | <a name="input_database_name"></a> [database\_name](#input\_database\_name) | Name of the database. | `string` | `null` | no |
+| <a name="input_default_variant"></a> [default\_variant](#input\_default\_variant) | Name for a variant. | `string` | `null` | no |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | Database endpoint | `string` | `null` | no |
 | <a name="input_endpoint_service_name"></a> [endpoint\_service\_name](#input\_endpoint\_service\_name) | MongoDB Atlas endpoint service name. | `string` | `null` | no |
 | <a name="input_exclusion_filters"></a> [exclusion\_filters](#input\_exclusion\_filters) | A set of regular expression filter patterns for a type of object. | `list(string)` | `[]` | no |
 | <a name="input_existing_kb"></a> [existing\_kb](#input\_existing\_kb) | The ID of the existing knowledge base. | `string` | `null` | no |
 | <a name="input_filters_config"></a> [filters\_config](#input\_filters\_config) | List of content filter configs in content policy. | `list(map(string))` | `null` | no |
+| <a name="input_foundation_model"></a> [foundation\_model](#input\_foundation\_model) | The foundation model for the Bedrock agent. | `string` | `null` | no |
 | <a name="input_guardrail_description"></a> [guardrail\_description](#input\_guardrail\_description) | Description of the guardrail. | `string` | `null` | no |
 | <a name="input_guardrail_kms_key_arn"></a> [guardrail\_kms\_key\_arn](#input\_guardrail\_kms\_key\_arn) | KMS encryption key to use for the guardrail. | `string` | `null` | no |
 | <a name="input_guardrail_name"></a> [guardrail\_name](#input\_guardrail\_name) | The name of the guardrail. | `string` | `"TerraformBedrockGuardrail"` | no |
@@ -300,6 +396,7 @@ No modules.
 | <a name="input_host_url"></a> [host\_url](#input\_host\_url) | The host URL or instance URL. | `string` | `null` | no |
 | <a name="input_idle_session_ttl"></a> [idle\_session\_ttl](#input\_idle\_session\_ttl) | How long sessions should be kept open for the agent. | `number` | `600` | no |
 | <a name="input_inclusion_filters"></a> [inclusion\_filters](#input\_inclusion\_filters) | A set of regular expression filter patterns for a type of object. | `list(string)` | `[]` | no |
+| <a name="input_instruction"></a> [instruction](#input\_instruction) | A narrative instruction to provide the agent as context. | `string` | `""` | no |
 | <a name="input_kb_description"></a> [kb\_description](#input\_kb\_description) | Description of knowledge base. | `string` | `"Terraform deployed Knowledge Base"` | no |
 | <a name="input_kb_embedding_model_arn"></a> [kb\_embedding\_model\_arn](#input\_kb\_embedding\_model\_arn) | The ARN of the model used to create vector embeddings for the knowledge base. | `string` | `"arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-embed-text-v1"` | no |
 | <a name="input_kb_log_group_retention_in_days"></a> [kb\_log\_group\_retention\_in\_days](#input\_kb\_log\_group\_retention\_in\_days) | The retention period of the knowledge base log group. | `number` | `0` | no |
@@ -326,9 +423,14 @@ No modules.
 | <a name="input_pii_entities_config"></a> [pii\_entities\_config](#input\_pii\_entities\_config) | List of entities. | `list(map(string))` | `null` | no |
 | <a name="input_primary_key_field"></a> [primary\_key\_field](#input\_primary\_key\_field) | The name of the field in which Bedrock stores the ID for each entry. | `string` | `null` | no |
 | <a name="input_prompt_creation_mode"></a> [prompt\_creation\_mode](#input\_prompt\_creation\_mode) | Specifies whether to override the default prompt template. | `string` | `null` | no |
+| <a name="input_prompt_description"></a> [prompt\_description](#input\_prompt\_description) | Description for a prompt resource. | `string` | `null` | no |
+| <a name="input_prompt_name"></a> [prompt\_name](#input\_prompt\_name) | Name for a prompt resource. | `string` | `null` | no |
 | <a name="input_prompt_override"></a> [prompt\_override](#input\_prompt\_override) | Whether to provide prompt override configuration. | `bool` | `false` | no |
 | <a name="input_prompt_state"></a> [prompt\_state](#input\_prompt\_state) | Specifies whether to allow the agent to carry out the step specified in the promptType. | `string` | `null` | no |
+| <a name="input_prompt_tags"></a> [prompt\_tags](#input\_prompt\_tags) | A map of tag keys and values for prompt resource. | `map(string)` | `null` | no |
 | <a name="input_prompt_type"></a> [prompt\_type](#input\_prompt\_type) | The step in the agent sequence that this prompt configuration applies to. | `string` | `null` | no |
+| <a name="input_prompt_version_description"></a> [prompt\_version\_description](#input\_prompt\_version\_description) | Description for a prompt version resource. | `string` | `null` | no |
+| <a name="input_prompt_version_tags"></a> [prompt\_version\_tags](#input\_prompt\_version\_tags) | A map of tag keys and values for a prompt version resource. | `map(string)` | `null` | no |
 | <a name="input_rate_limit"></a> [rate\_limit](#input\_rate\_limit) | Rate of web URLs retrieved per minute. | `number` | `null` | no |
 | <a name="input_regexes_config"></a> [regexes\_config](#input\_regexes\_config) | List of regex. | `list(map(string))` | `null` | no |
 | <a name="input_resource_arn"></a> [resource\_arn](#input\_resource\_arn) | The ARN of the vector store. | `string` | `null` | no |
@@ -347,6 +449,7 @@ No modules.
 | <a name="input_top_k"></a> [top\_k](#input\_top\_k) | Sample from the k most likely next tokens. | `number` | `50` | no |
 | <a name="input_top_p"></a> [top\_p](#input\_top\_p) | Cumulative probability cutoff for token selection. | `number` | `0.5` | no |
 | <a name="input_topics_config"></a> [topics\_config](#input\_topics\_config) | List of topic configs in topic policy | <pre>list(object({<br>    name       = string<br>    examples   = list(string)<br>    type       = string<br>    definition = string<br>  }))</pre> | `null` | no |
+| <a name="input_variants_list"></a> [variants\_list](#input\_variants\_list) | List of prompt variants. | <pre>list(object({<br>    name                    = optional(string)<br>    template_type           = optional(string)<br>    model_id                = optional(string)<br>    inference_configuration = optional(object({<br>                                text = optional(object({<br>                                  max_tokens = optional(number)<br>                                  stop_sequences = optional(list(string))<br>                                  temperature = optional(number)<br>                                  top_p = optional(number)<br>                                }))<br>                              }))<br><br>    template_configuration  = optional(object({<br>                                text = optional(object({<br>                                  input_variables = optional(list(object({ name = optional(string) })))<br>                                  text = optional(string)<br>                                  text_s3_location = optional(object({<br>                                    bucket = optional(string)<br>                                    key = optional(string)<br>                                    version = optional(string)<br>                                  }))<br>                                }))<br>                              }))<br>  }))</pre> | `null` | no |
 | <a name="input_vector_field"></a> [vector\_field](#input\_vector\_field) | The name of the field where the vector embeddings are stored | `string` | `"bedrock-knowledge-base-default-vector"` | no |
 | <a name="input_vector_index_name"></a> [vector\_index\_name](#input\_vector\_index\_name) | The name of the vector index. | `string` | `"bedrock-knowledge-base-default-index"` | no |
 | <a name="input_words_config"></a> [words\_config](#input\_words\_config) | List of custom word configs. | `list(map(string))` | `null` | no |

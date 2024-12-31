@@ -65,7 +65,6 @@ resource "awscc_s3_bucket" "s3_data_source" {
     key   = "Name"
     value = "S3 Data Source"
   }]
-
 }
 
 resource "aws_bedrockagent_data_source" "knowledge_base_ds" {

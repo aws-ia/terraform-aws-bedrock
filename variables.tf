@@ -984,3 +984,41 @@ variable "app_inference_profile_tags" {
   type        = list(map(string))
   default     = null
 }
+
+# – Bedrock Flow – 
+
+variable "create_flow_alias" {
+  description = "Whether or not to create a flow alias resource."
+  type        = bool
+  default     = false
+}
+
+variable "flow_alias_name" {
+  description = "The name of your flow alias."
+  type        = string
+  default     = "BedrockFlowAlias"
+}
+
+variable "flow_arn" {
+  description = "ARN representation of the flow."
+  type        = string
+  default     = null
+}
+
+variable "flow_alias_description" {
+  description = "A description of the flow alias."
+  type        = string
+  default     = null
+}
+
+variable "flow_version" {
+  description = "Version of the flow."
+  type        = string
+  default     = null
+}
+
+variable "flow_version_description" {
+  description = "A description of flow version."
+  type        = string
+  default     = null
+}

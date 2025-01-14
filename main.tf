@@ -127,3 +127,23 @@ resource "awscc_bedrock_guardrail_version" "guardrail" {
   guardrail_identifier = awscc_bedrock_guardrail.guardrail[0].guardrail_id
   description          = "Guardrail version"
 }
+
+# – Bedrock Flow –
+
+resource "awscc_bedrock_flow_alias" "flow_alias" {
+  count       = var.create_flow_alias ? 1 : 0
+  name        = var.flow_alias_name
+  flow_arn    = var.flow_arn
+  description = var.flow_alias_description
+  routing_configuration = [
+    {
+      flow_version = var.flow_version != null ? var.flow_version : awscc_bedrock_flow_version.flow_version[0].version
+    }
+  ]
+}
+
+resource "awscc_bedrock_flow_version" "flow_version" {
+  count       = var.flow_version == null && var.create_flow_alias ? 1 : 0
+  flow_arn    = var.flow_arn
+  description = var.flow_version_description
+}

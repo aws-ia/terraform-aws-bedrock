@@ -27,7 +27,7 @@ provider "opensearch" {
 
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.6"
+  version = "0.0.7"
   create_kb = true
   create_default_kb = true
   foundation_model = "anthropic.claude-v2"
@@ -60,7 +60,7 @@ The following example creates an Agent with a simple instruction and without any
 ```hcl
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.6"
+  version = "0.0.7"
   foundation_model = "anthropic.claude-v2"
   instruction = "You are an automotive assisant who can provide detailed information about cars to a customer."
 }
@@ -71,7 +71,7 @@ To create an Agent with a default Knowledge Base you simply set `create_kb` and 
 ```hcl
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.6"
+  version = "0.0.7"
   create_kb = true
   create_default_kb = true
   foundation_model = "anthropic.claude-v2"
@@ -110,7 +110,7 @@ You can create a Guardrail by setting `create_guardrail` to true and passing in 
 ```hcl
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.6"
+  version = "0.0.7"
   create_kb = false
   create_default_kb = false
   create_guardrail = true
@@ -213,7 +213,7 @@ Creating a prompt with a prompt version would look like:
 ```hcl
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.6"
+  version = "0.0.7"
   create_kb = false
   create_default_kb = false
   create_s3_data_source = false
@@ -273,7 +273,7 @@ data "aws_region" "current" {}
 
 module "bedrock" {
   source  = "aws-ia/bedrock/aws"
-  version = "0.0.6"
+  version = "0.0.7"
   create_kb = false
   create_default_kb = false
   create_s3_data_source = false
@@ -342,6 +342,8 @@ No modules.
 | [awscc_bedrock_data_source.knowledge_base_salesforce](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_data_source) | resource |
 | [awscc_bedrock_data_source.knowledge_base_sharepoint](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_data_source) | resource |
 | [awscc_bedrock_data_source.knowledge_base_web_crawler](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_data_source) | resource |
+| [awscc_bedrock_flow_alias.flow_alias](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_flow_alias) | resource |
+| [awscc_bedrock_flow_version.flow_version](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_flow_version) | resource |
 | [awscc_bedrock_guardrail.guardrail](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_guardrail) | resource |
 | [awscc_bedrock_guardrail_version.guardrail](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_guardrail_version) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_default](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
@@ -410,6 +412,7 @@ No modules.
 | <a name="input_create_confluence"></a> [create\_confluence](#input\_create\_confluence) | Whether or not create a Confluence data source. | `bool` | `false` | no |
 | <a name="input_create_custom_tranformation_config"></a> [create\_custom\_tranformation\_config](#input\_create\_custom\_tranformation\_config) | Whether or not to create a custom transformation configuration. | `bool` | `false` | no |
 | <a name="input_create_default_kb"></a> [create\_default\_kb](#input\_create\_default\_kb) | Whether or not to create the default knowledge base. | `bool` | `false` | no |
+| <a name="input_create_flow_alias"></a> [create\_flow\_alias](#input\_create\_flow\_alias) | Whether or not to create a flow alias resource. | `bool` | `false` | no |
 | <a name="input_create_guardrail"></a> [create\_guardrail](#input\_create\_guardrail) | Whether or not to create a guardrail. | `bool` | `false` | no |
 | <a name="input_create_kb"></a> [create\_kb](#input\_create\_kb) | Whether or not to attach a knowledge base. | `bool` | `false` | no |
 | <a name="input_create_kb_log_group"></a> [create\_kb\_log\_group](#input\_create\_kb\_log\_group) | Whether or not to create a log group for the knowledge base. | `bool` | `false` | no |
@@ -435,6 +438,11 @@ No modules.
 | <a name="input_exclusion_filters"></a> [exclusion\_filters](#input\_exclusion\_filters) | A set of regular expression filter patterns for a type of object. | `list(string)` | `[]` | no |
 | <a name="input_existing_kb"></a> [existing\_kb](#input\_existing\_kb) | The ID of the existing knowledge base. | `string` | `null` | no |
 | <a name="input_filters_config"></a> [filters\_config](#input\_filters\_config) | List of content filter configs in content policy. | `list(map(string))` | `null` | no |
+| <a name="input_flow_alias_description"></a> [flow\_alias\_description](#input\_flow\_alias\_description) | A description of the flow alias. | `string` | `null` | no |
+| <a name="input_flow_alias_name"></a> [flow\_alias\_name](#input\_flow\_alias\_name) | The name of your flow alias. | `string` | `"BedrockFlowAlias"` | no |
+| <a name="input_flow_arn"></a> [flow\_arn](#input\_flow\_arn) | ARN representation of the flow. | `string` | `null` | no |
+| <a name="input_flow_version"></a> [flow\_version](#input\_flow\_version) | Version of the flow. | `string` | `null` | no |
+| <a name="input_flow_version_description"></a> [flow\_version\_description](#input\_flow\_version\_description) | A description of flow version. | `string` | `null` | no |
 | <a name="input_foundation_model"></a> [foundation\_model](#input\_foundation\_model) | The foundation model for the Bedrock agent. | `string` | `null` | no |
 | <a name="input_guardrail_description"></a> [guardrail\_description](#input\_guardrail\_description) | Description of the guardrail. | `string` | `null` | no |
 | <a name="input_guardrail_kms_key_arn"></a> [guardrail\_kms\_key\_arn](#input\_guardrail\_kms\_key\_arn) | KMS encryption key to use for the guardrail. | `string` | `null` | no |

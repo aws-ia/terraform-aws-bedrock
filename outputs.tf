@@ -78,3 +78,8 @@ output "custom_model" {
   value       = var.create_custom_model ? aws_bedrock_custom_model.custom_model[0] : null
   description = "The custom model. If no custom model was requested, value will be null."
 }
+
+output "knowledge_base_role_name" {
+  description = "The name of the IAM role used by the knowledge base."
+  value       = local.create_kb_role ? aws_iam_role.bedrock_knowledge_base_role[0].name : null
+}

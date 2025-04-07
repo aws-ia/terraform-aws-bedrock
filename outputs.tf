@@ -82,5 +82,4 @@ output "custom_model" {
 output "knowledge_base_role_name" {
   description = "The name of the IAM role used by the knowledge base."
   value       = try(aws_iam_role.bedrock_knowledge_base_role[0].name, null)
-  type        = string
 }

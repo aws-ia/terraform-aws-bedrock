@@ -543,7 +543,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_oss_knowledgebase"></a> [oss\_knowledgebase](#module\_oss\_knowledgebase) | aws-ia/opensearch-serverless/aws | 0.0.4 |
+| <a name="module_oss_knowledgebase"></a> [oss\_knowledgebase](#module\_oss\_knowledgebase) | aws-ia/opensearch-serverless/aws | 0.0.3 |
 
 ## Resources
 

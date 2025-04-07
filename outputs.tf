@@ -81,5 +81,5 @@ output "custom_model" {
 
 output "knowledge_base_role_name" {
   description = "The name of the IAM role used by the knowledge base."
-  value       = local.create_kb_role ? aws_iam_role.bedrock_knowledge_base_role[0].name : null
+  value       = var.kb_role_arn != null || (local.create_kb == false && var.create_sql_config == false) ? null : aws_iam_role.bedrock_knowledge_base_role[0].name
 }

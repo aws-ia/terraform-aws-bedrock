@@ -3,7 +3,7 @@
 module "oss_knowledgebase" {
   count = var.create_default_kb ? 1 : 0
   source  = "aws-ia/opensearch-serverless/aws"
-  version = "0.0.2"
+  version = "0.0.4"
   allow_public_access_network_policy = var.allow_opensearch_public_access
   create_vector_index = true
   vector_index_mappings = <<-EOF

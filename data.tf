@@ -39,9 +39,8 @@ data "aws_iam_policy_document" "agent_permissions" {
       "bedrock:InvokeModelWithResponseStream"
     ]
     resources = [
-      "arn:${local.partition}:bedrock:${local.region}::foundation-model/${local.foundation_model}",
       "arn:${local.partition}:bedrock:*::foundation-model/${local.foundation_model}",
-      "arn:${local.partition}:bedrock:${local.region}:${local.account_id}:inference-profile/*.${local.foundation_model}",
+      "arn:${local.partition}:bedrock:*:${local.account_id}:inference-profile/*.${local.foundation_model}",
     ]
   }
 }

@@ -7,7 +7,7 @@ resource "random_string" "solution_prefix" {
 # – Bedrock Agent –
 
 locals {
-  counter_kb = local.create_kb || var.existing_kb != null ? [1] : []
+  counter_kb        = local.create_kb || var.existing_kb != null ? [1] : []
   knowledge_base_id = local.create_kb ? (var.create_default_kb ? awscc_bedrock_knowledge_base.knowledge_base_default[0].id : (var.create_mongo_config ? awscc_bedrock_knowledge_base.knowledge_base_mongo[0].id : (var.create_opensearch_config ? awscc_bedrock_knowledge_base.knowledge_base_opensearch[0].id : (var.create_pinecone_config ? awscc_bedrock_knowledge_base.knowledge_base_pinecone[0].id : (var.create_rds_config ? awscc_bedrock_knowledge_base.knowledge_base_rds[0].id : null))))) : null
   knowledge_bases_value = {
     description          = var.kb_description
@@ -44,10 +44,10 @@ locals {
     # Use action_group_name as key, or index if name is null
     coalesce(try(ag.action_group_name, ""), format("%04d", idx)) => ag
   } : {}
-  
+
   # Extract values from the sorted map (Terraform maps are sorted by keys)
   sorted_action_groups = [for k, v in local.action_group_map : v]
-  
+
   # Combine action groups with consistent ordering
   action_group_list = concat(local.action_group_result, local.sorted_action_groups)
 
@@ -62,7 +62,7 @@ locals {
 resource "awscc_bedrock_agent" "bedrock_agent" {
   count                       = var.create_agent ? 1 : 0
   agent_name                  = "${random_string.solution_prefix.result}-${var.agent_name}"
-  foundation_model            = var.foundation_model
+  foundation_model            = var.create_app_inference_profile ? awscc_bedrock_application_inference_profile.application_inference_profile[0].inference_profile_arn : var.foundation_model
   instruction                 = var.instruction
   description                 = var.agent_description
   idle_session_ttl_in_seconds = var.idle_session_ttl
@@ -102,7 +102,7 @@ resource "awscc_bedrock_agent" "bedrock_agent" {
 
 # Agent Alias
 
-resource "awscc_bedrock_agent_alias"  "bedrock_agent_alias" {
+resource "awscc_bedrock_agent_alias" "bedrock_agent_alias" {
   count            = var.create_agent_alias ? 1 : 0
   agent_alias_name = var.agent_alias_name
   agent_id         = var.create_agent ? awscc_bedrock_agent.bedrock_agent[0].id : var.agent_id
@@ -118,7 +118,7 @@ resource "awscc_bedrock_agent_alias"  "bedrock_agent_alias" {
 # Agent Collaborator 
 
 resource "aws_bedrockagent_agent_collaborator" "agent_collaborator" {
-  count                      = local.counter_collaborator    
+  count                      = local.counter_collaborator
   agent_id                   = var.create_supervisor ? aws_bedrockagent_agent.agent_supervisor[0].agent_id : var.supervisor_id
   collaboration_instruction  = var.collaboration_instruction
   collaborator_name          = "${random_string.solution_prefix.result}-${var.collaborator_name}"
@@ -132,9 +132,9 @@ resource "aws_bedrockagent_agent_collaborator" "agent_collaborator" {
 }
 
 resource "aws_bedrockagent_agent" "agent_supervisor" {
-  count                       = var.create_supervisor ? 1 : 0
-  agent_name                  = "${random_string.solution_prefix.result}-${var.supervisor_name}"
-  agent_resource_role_arn     = var.agent_resource_role_arn != null ? var.agent_resource_role_arn : aws_iam_role.agent_role[0].arn
+  count                   = var.create_supervisor ? 1 : 0
+  agent_name              = "${random_string.solution_prefix.result}-${var.supervisor_name}"
+  agent_resource_role_arn = var.agent_resource_role_arn != null ? var.agent_resource_role_arn : aws_iam_role.agent_role[0].arn
 
   agent_collaboration         = var.agent_collaboration
   idle_session_ttl_in_seconds = var.supervisor_idle_session_ttl
@@ -143,7 +143,7 @@ resource "aws_bedrockagent_agent" "agent_supervisor" {
   customer_encryption_key_arn = var.supervisor_kms_key_arn
   #checkov:skip=CKV_AWS_383:The user can optionally associate agent with Bedrock guardrails
   guardrail_configuration = local.supervisor_guardrail
-  prepare_agent               = false
+  prepare_agent           = false
 }
 
 # – Guardrail –
@@ -202,14 +202,14 @@ resource "awscc_bedrock_flow_version" "flow_version" {
 # – Custom Model – 
 
 resource "aws_bedrock_custom_model" "custom_model" {
-  count = var.create_custom_model ? 1 : 0
-  custom_model_name     = "${random_string.solution_prefix.result}-${var.custom_model_name}"
-  job_name              = "${random_string.solution_prefix.result}-${var.custom_model_job_name}"
-  base_model_identifier = data.aws_bedrock_foundation_model.model_identifier[0].model_arn
-  role_arn              = aws_iam_role.custom_model_role[0].arn
+  count                   = var.create_custom_model ? 1 : 0
+  custom_model_name       = "${random_string.solution_prefix.result}-${var.custom_model_name}"
+  job_name                = "${random_string.solution_prefix.result}-${var.custom_model_job_name}"
+  base_model_identifier   = data.aws_bedrock_foundation_model.model_identifier[0].model_arn
+  role_arn                = aws_iam_role.custom_model_role[0].arn
   custom_model_kms_key_id = var.custom_model_kms_key_id
-  customization_type = var.customization_type
-  hyperparameters = var.custom_model_hyperparameters
+  customization_type      = var.customization_type
+  hyperparameters         = var.custom_model_hyperparameters
   output_data_config {
     s3_uri = var.custom_model_output_uri == null ? "s3://${awscc_s3_bucket.custom_model_output[0].id}/" : "s3://${var.custom_model_output_uri}"
   }
@@ -220,7 +220,7 @@ resource "aws_bedrock_custom_model" "custom_model" {
 }
 
 resource "awscc_s3_bucket" "custom_model_output" {
-  count = var.custom_model_output_uri == null && var.create_custom_model == true ? 1 : 0
+  count       = var.custom_model_output_uri == null && var.create_custom_model == true ? 1 : 0
   bucket_name = "${random_string.solution_prefix.result}-${var.custom_model_name}-output-bucket"
   public_access_block_configuration = {
     block_public_acls       = true

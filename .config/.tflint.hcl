@@ -8,7 +8,7 @@ plugin "aws" {
 }
 
 config {
-  module = true
+  call_module_type = "all"
   force  = false
 }
 

@@ -568,6 +568,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | [aws_iam_role_policy.agent_alias_policy](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.agent_policy](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.app_inference_profile_policy](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.app_inference_profile_role_policy](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.bedrock_kb_oss](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.custom_model_policy](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.guardrail_policy](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/resources/iam_role_policy) | resource |
@@ -624,6 +625,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | [aws_iam_policy_document.agent_alias_permissions](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.agent_permissions](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.agent_trust](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.app_inference_profile_permission](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.custom_model_trust](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.knowledge_base_permissions](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/5.93.0/docs/data-sources/partition) | data source |

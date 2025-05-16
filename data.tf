@@ -35,11 +35,12 @@ data "aws_iam_policy_document" "agent_permissions" {
   count = var.create_agent || var.create_supervisor ? 1 : 0
   statement {
     actions = [
-      "bedrock:InvokeModel",
-      "bedrock:InvokeModelWithResponseStream"
+      "bedrock:InvokeModel*",
     ]
     resources = concat([
       var.app_inference_profile_model_source,
+      "arn:aws:bedrock:*:*:application-inference-profile/*",
+      awscc_bedrock_application_inference_profile.application_inference_profile[0].inference_profile_arn,
       ],
       awscc_bedrock_application_inference_profile.application_inference_profile[0].models[*].model_arn,
     )

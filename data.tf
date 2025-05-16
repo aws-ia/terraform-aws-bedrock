@@ -38,10 +38,12 @@ data "aws_iam_policy_document" "agent_permissions" {
       "bedrock:InvokeModel",
       "bedrock:InvokeModelWithResponseStream"
     ]
-    resources = [
-      "arn:${local.partition}:bedrock:*::foundation-model/${local.foundation_model}",
-      "arn:${local.partition}:bedrock:*:${local.account_id}:inference-profile/*.${local.foundation_model}",
-    ]
+    resources = concat([
+      var.app_inference_profile_model_source,
+      ],
+      awscc_bedrock_application_inference_profile.application_inference_profile[0].models[*].model_arn,
+    )
+
   }
 }
 
@@ -108,4 +110,3 @@ data "aws_bedrock_foundation_model" "model_identifier" {
   count    = var.create_custom_model ? 1 : 0
   model_id = var.custom_model_id
 }
-

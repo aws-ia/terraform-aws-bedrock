@@ -5,6 +5,8 @@ module "oss_knowledgebase" {
   source  = "aws-ia/opensearch-serverless/aws"
   version = "0.0.4"
   allow_public_access_network_policy = var.allow_opensearch_public_access
+  number_of_shards = var.number_of_shards
+  number_of_replicas = var.number_of_replicas
   create_vector_index = true
   vector_index_mappings = <<-EOF
       {

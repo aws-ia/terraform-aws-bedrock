@@ -868,6 +868,18 @@ variable "allow_opensearch_public_access" {
   default     = true
 }
 
+variable "number_of_shards" {
+    description = "The number of shards for the OpenSearch index. This setting cannot be changed after index creation."
+    type        = string
+    default     = "1"
+}
+
+variable "number_of_replicas" {
+   description = "The number of replica shards for the OpenSearch index." 
+   type        = string
+   default     = "1"
+}
+
 # – Pinecone Configuration –
 
 variable "create_pinecone_config" {

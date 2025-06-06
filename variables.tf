@@ -1124,6 +1124,12 @@ variable "create_app_inference_profile" {
   default     = false
 }
 
+variable "use_app_inference_profile" {
+  description = "Whether or not to create an application inference profile."
+  type        = bool
+  default     = false
+}
+
 variable "app_inference_profile_name" {
   description = "The name of your application inference profile."
   type        = string

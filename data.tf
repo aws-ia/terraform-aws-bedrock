@@ -35,21 +35,29 @@ data "aws_iam_policy_document" "agent_permissions" {
   count = var.create_agent || var.create_supervisor ? 1 : 0
   statement {
     actions = [
-      "bedrock:InvokeModel*",
-      "bedrock:UseInferenceProfile",
+      "bedrock:InvokeModel*", // FOR "bedrock:InvokeModel" and "bedrock:InvokeModelWithResponseStream",
+      "bedrock:UseInferenceProfile", // "bedrock:GetInferenceProfile",
     ]
     resources = distinct(concat(
+      var.use_app_inference_profile ? [
+        var.app_inference_profile_model_source,
+        # "arn:aws:bedrock:eu-west-1:915193162015:inference-profile/eu.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        "arn:aws:bedrock:*::foundation-model/*", // TOO BROAD, but needed 
+        # "arn:aws:bedrock:*:*:application-inference-profile/*",
+      ] : [],
       var.create_app_inference_profile ? [
        var.app_inference_profile_model_source,
        awscc_bedrock_application_inference_profile.application_inference_profile[0].inference_profile_arn,
        "arn:aws:bedrock:*:*:application-inference-profile/*",
-      ] : [
+      ] : [],
+      var.create_app_inference_profile ? 
+        awscc_bedrock_application_inference_profile.application_inference_profile[0].models[*].model_arn : [],
+      !var.create_app_inference_profile && !var.use_app_inference_profile ? 
+      [
        "arn:${local.partition}:bedrock:${local.region}::foundation-model/${local.foundation_model}",
        "arn:${local.partition}:bedrock:*::foundation-model/${local.foundation_model}",
        "arn:${local.partition}:bedrock:${local.region}:${local.account_id}:inference-profile/*.${local.foundation_model}",
-      ],
-      var.create_app_inference_profile ? 
-        awscc_bedrock_application_inference_profile.application_inference_profile[0].models[*].model_arn : []
+      ]: []
     ))
   }
 }
@@ -100,7 +108,9 @@ data "aws_iam_policy_document" "custom_model_trust" {
 }
 
 data "aws_iam_policy_document" "app_inference_profile_permission" {
-  count = var.create_app_inference_profile ? 1 : 0
+  # Is it needed ?
+  count = var.create_app_inference_profile || var.use_app_inference_profile ? 1 : 0
+  # count = var.create_app_inference_profile ? 1 : 0
   statement {
     actions = [
       "bedrock:GetInferenceProfile",

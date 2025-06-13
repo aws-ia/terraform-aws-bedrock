@@ -263,7 +263,7 @@ resource "aws_iam_role_policy" "action_group_policy" {
 
 # Define the IAM role for Application Inference Profile
 resource "aws_iam_role" "application_inference_profile_role" {
-  count = var.create_app_inference_profile ? 1 : 0
+  count = var.create_app_inference_profile || var.use_app_inference_profile ? 1 : 0
   name  = "ApplicationInferenceProfile-${random_string.solution_prefix.result}"
 
   assume_role_policy = jsonencode({
@@ -282,7 +282,7 @@ resource "aws_iam_role" "application_inference_profile_role" {
 }
 
 resource "aws_iam_role_policy" "app_inference_profile_role_policy" {
-  count = var.create_app_inference_profile ? 1 : 0
+  count  = var.create_app_inference_profile || var.use_app_inference_profile ? 1 : 0
   policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [

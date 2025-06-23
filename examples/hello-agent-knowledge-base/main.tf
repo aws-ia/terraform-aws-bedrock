@@ -21,7 +21,7 @@ provider "opensearch" {
 }
 
 module "bedrock" {
-  source = "git::git@github.com:KPInfr/terraform-aws-bedrock-orig.git//examples/hello-agent-knowledge-base?ref=main"
+  source = "git::git@github.com:KPInfr/terraform-aws-bedrock-orig.git//?ref=herter/gov-cloud-adapt"
   #source = "/Users/justinherter/infr/terraform-aws-bedrock-orig"
   #source  = "aws-ia/bedrock/aws"
   #version = "0.0.26"

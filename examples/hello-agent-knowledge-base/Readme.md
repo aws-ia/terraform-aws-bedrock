@@ -5,4 +5,7 @@ This Terraform code uses the [AWS Bedrock Terraform module](https://registry.ter
 * An S3 bucket to host data for the knowledge base to ingest
 
 Although the IaC is simplified by use of the module, a lot of complexity is buried, given the 200+ inputs available.
-> While this note is here, please do not deploy this in dev.  State is saved to local machine. 
+> While this note is here, please do not deploy this in dev.  State is saved to local machine.
+
+## Naming
+Acronym is KALYPSO for Kairos-Aware Language Yielding & Parsing System Operator.

@@ -1,0 +1,2 @@
+# hello-agent-knowledge-base
+This Terraform code uses the [AWS Bedrock Terraform module](https://registry.terraform.io/modules/aws-ia/bedrock/aws/latest) on a custom internal fork for GovCloud [here](https://github.com/KPInfr/terraform-aws-bedrock-orig).

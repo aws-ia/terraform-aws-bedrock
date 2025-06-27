@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "agent_permissions" {
       var.create_app_inference_profile ? [
        var.app_inference_profile_model_source,
        awscc_bedrock_application_inference_profile.application_inference_profile[0].inference_profile_arn,
-       "arn:aws:bedrock:*:*:application-inference-profile/*",
+       "arn:${local.partition}:bedrock:*:*:application-inference-profile/*",
       ] : [],
       var.create_app_inference_profile ? 
         awscc_bedrock_application_inference_profile.application_inference_profile[0].models[*].model_arn : [],
@@ -117,8 +117,8 @@ data "aws_iam_policy_document" "app_inference_profile_permission" {
       "bedrock:UseInferenceProfile",
     ]
     resources = [
-      "arn:aws:bedrock:*:*:inference-profile/*",
-      "arn:aws:bedrock:*:*:application-inference-profile/*"
+      "arn:${local.partition}:bedrock:*:*:inference-profile/*",
+      "arn:${local.partition}:bedrock:*:*:application-inference-profile/*"
     ]
   }
 }

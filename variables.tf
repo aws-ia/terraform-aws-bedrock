@@ -30,7 +30,7 @@ variable "instruction" {
   default     = ""
 
   validation {
-    condition     = length(var.instruction) == 0 || length(var.instruction) >= 40 
+    condition     = length(var.instruction) == 0 || length(var.instruction) >= 40
     error_message = "Instruction string length must be at least 40."
   }
 }
@@ -292,7 +292,7 @@ variable "supervisor_instruction" {
   default     = ""
 
   validation {
-    condition     = length(var.supervisor_instruction) == 0 || length(var.supervisor_instruction) >= 40 
+    condition     = length(var.supervisor_instruction) == 0 || length(var.supervisor_instruction) >= 40
     error_message = "Instruction string length must be at least 40."
   }
 }
@@ -301,11 +301,11 @@ variable "agent_collaboration" {
   description = "Agents collaboration role."
   type        = string
   default     = "SUPERVISOR"
-  
+
   validation {
     condition     = var.agent_collaboration == "SUPERVISOR" || var.agent_collaboration == "SUPERVISOR_ROUTER"
     error_message = "Valid values: SUPERVISOR or SUPERVISOR_ROUTER"
-  } 
+  }
 }
 
 variable "supervisor_kms_key_arn" {
@@ -336,14 +336,14 @@ variable "supervisor_guardrail_version" {
 
 variable "memory_configuration" {
   description = "Configuration for agent memory storage"
-  type        = object({
-      enabled_memory_types = optional(list(string))
-      session_summary_configuration = optional(object({
-        max_recent_sessions = optional(number)
-      }))
-      storage_days = optional(number)
+  type = object({
+    enabled_memory_types = optional(list(string))
+    session_summary_configuration = optional(object({
+      max_recent_sessions = optional(number)
+    }))
+    storage_days = optional(number)
   })
-  default    = null
+  default = null
 }
 
 # – Guardrails –
@@ -380,6 +380,12 @@ variable "guardrail_description" {
 
 variable "filters_config" {
   description = "List of content filter configs in content policy."
+  type        = list(map(string))
+  default     = null
+}
+
+variable "contextual_grounding_policy_filters" {
+  description = "The contextual grounding policy filters for the guardrail."
   type        = list(map(string))
   default     = null
 }
@@ -530,7 +536,7 @@ variable "crawler_scope" {
 
 variable "seed_urls" {
   description = "A list of web urls."
-  type        = list(object({url = string}))
+  type        = list(object({ url = string }))
   default     = []
 }
 
@@ -544,13 +550,13 @@ variable "create_confluence" {
 
 variable "pattern_object_filter_list" {
   description = "List of pattern object information."
-  type        = list(object({
+  type = list(object({
     exclusion_filters = optional(list(string))
     inclusion_filters = optional(list(string))
     object_type       = optional(string)
 
   }))
-  default     = []
+  default = []
 }
 
 variable "crawl_filter_type" {
@@ -705,15 +711,15 @@ variable "s3_location_uri" {
 
 variable "transformations_list" {
   description = "A list of Lambda functions that process documents."
-  type        = list(object({
-                  step_to_apply = optional(string)
-                  transformation_function = optional(object({
-                    transformation_lambda_configuration = optional(object({
-                      lambda_arn = optional(string)
-                    }))
-                  }))
-                }))
-  default     = null
+  type = list(object({
+    step_to_apply = optional(string)
+    transformation_function = optional(object({
+      transformation_lambda_configuration = optional(object({
+        lambda_arn = optional(string)
+      }))
+    }))
+  }))
+  default = null
 }
 
 variable "parsing_config_model_arn" {
@@ -907,15 +913,15 @@ variable "allow_opensearch_public_access" {
 }
 
 variable "number_of_shards" {
-    description = "The number of shards for the OpenSearch index. This setting cannot be changed after index creation."
-    type        = string
-    default     = "1"
+  description = "The number of shards for the OpenSearch index. This setting cannot be changed after index creation."
+  type        = string
+  default     = "1"
 }
 
 variable "number_of_replicas" {
-   description = "The number of replica shards for the OpenSearch index." 
-   type        = string
-   default     = "1"
+  description = "The number of replica shards for the OpenSearch index."
+  type        = string
+  default     = "1"
 }
 
 # – Pinecone Configuration –
@@ -1077,29 +1083,29 @@ variable "prompt_tags" {
 variable "variants_list" {
   description = "List of prompt variants."
   type = list(object({
-    name                    = optional(string)
-    template_type           = optional(string)
-    model_id                = optional(string)
+    name          = optional(string)
+    template_type = optional(string)
+    model_id      = optional(string)
     inference_configuration = optional(object({
-                                text = optional(object({
-                                  max_tokens = optional(number)
-                                  stop_sequences = optional(list(string))
-                                  temperature = optional(number)
-                                  top_p = optional(number)
-                                }))
-                              }))
+      text = optional(object({
+        max_tokens     = optional(number)
+        stop_sequences = optional(list(string))
+        temperature    = optional(number)
+        top_p          = optional(number)
+      }))
+    }))
 
-    template_configuration  = optional(object({
-                                text = optional(object({
-                                  input_variables = optional(list(object({ name = optional(string) })))
-                                  text = optional(string)
-                                  text_s3_location = optional(object({
-                                    bucket = optional(string)
-                                    key = optional(string)
-                                    version = optional(string)
-                                  }))
-                                }))
-                              }))
+    template_configuration = optional(object({
+      text = optional(object({
+        input_variables = optional(list(object({ name = optional(string) })))
+        text            = optional(string)
+        text_s3_location = optional(object({
+          bucket  = optional(string)
+          key     = optional(string)
+          version = optional(string)
+        }))
+      }))
+    }))
   }))
   default = null
 }
@@ -1244,7 +1250,7 @@ variable "customization_type" {
 variable "custom_model_hyperparameters" {
   description = "Parameters related to tuning the custom model."
   type        = map(string)
-  default     = {
+  default = {
     "epochCount"              = "2"
     "batchSize"               = "1"
     "learningRate"            = "0.00001"
@@ -1329,7 +1335,7 @@ variable "kendra_index_storage_capacity" {
   type        = number
   default     = 1
 
-   validation {
+  validation {
     condition     = var.kendra_index_storage_capacity >= 1 && var.kendra_index_storage_capacity <= 50
     error_message = "Kendra index storage capacity must be between 1 and 50."
   }
@@ -1346,19 +1352,19 @@ variable "user_token_configurations" {
   type = list(object({
 
     json_token_type_configurations = optional(object({
-      group_attribute_field = string
+      group_attribute_field     = string
       user_name_attribute_field = string
     }))
 
     jwt_token_type_configuration = optional(object({
-      claim_regex = optional(string)
-      key_location = optional(string)
-      group_attribute_field = optional(string)
+      claim_regex               = optional(string)
+      key_location              = optional(string)
+      group_attribute_field     = optional(string)
       user_name_attribute_field = optional(string)
-      issuer = optional(string)
-      secret_manager_arn = optional(string)
-      url = optional(string)
-    })) 
+      issuer                    = optional(string)
+      secret_manager_arn        = optional(string)
+      url                       = optional(string)
+    }))
 
   }))
   default = null
@@ -1382,20 +1388,20 @@ variable "document_metadata_configurations" {
     name = optional(string)
     type = optional(string)
     search = optional(object({
-      facetable = optional(bool)
-      searchable = optional(bool)
+      facetable   = optional(bool)
+      searchable  = optional(bool)
       displayable = optional(bool)
-      sortable = optional(bool)
+      sortable    = optional(bool)
     }))
     relevance = optional(object({
-      duration = optional(string)
-      freshness = optional(bool)
+      duration   = optional(string)
+      freshness  = optional(bool)
       importance = optional(number)
       rank_order = optional(string)
       value_importance_items = optional(list(object({
-        key = optional(string)
+        key   = optional(string)
         value = optional(number)
-      }))) 
+      })))
     }))
   }))
   default = null
@@ -1413,7 +1419,7 @@ variable "kendra_data_source_language_code" {
   description = "The code for the language of the Kendra data source content."
   type        = string
   default     = "en"
-}  
+}
 
 variable "kendra_data_source_description" {
   description = "A description for the Kendra data source."
@@ -1467,7 +1473,7 @@ variable "create_kendra_s3_data_source" {
   description = "Whether or not to create a Kendra S3 data source."
   type        = bool
   default     = false
-}  
+}
 
 # SQL Knowledge Base
 
@@ -1485,12 +1491,12 @@ variable "sql_kb_workgroup_arn" {
 
 variable "provisioned_auth_configuration" {
   description = "Configurations for provisioned Redshift query engine"
-  type        = object({
-          database_user = optional(string)
-          type  = optional(string)
-          username_password_secret_arn  = optional(string)
-        })
-  default     = null  
+  type = object({
+    database_user                = optional(string)
+    type                         = optional(string)
+    username_password_secret_arn = optional(string)
+  })
+  default = null
 }
 
 variable "provisioned_config_cluster_identifier" {
@@ -1502,11 +1508,11 @@ variable "provisioned_config_cluster_identifier" {
 
 variable "serverless_auth_configuration" {
   description = "Configuration for the Redshift serverless query engine."
-  type        = object({
-                  type  = optional(string)
-                  username_password_secret_arn  = optional(string)
-                })
-  default     = null
+  type = object({
+    type                         = optional(string)
+    username_password_secret_arn = optional(string)
+  })
+  default = null
 }
 
 variable "query_generation_configuration" {
@@ -1515,17 +1521,17 @@ variable "query_generation_configuration" {
     generation_context = optional(object({
       curated_queries = optional(list(object({
         natural_language = optional(string)
-        sql = optional(string)
+        sql              = optional(string)
       })))
       tables = optional(list(object({
         columns = optional(list(object({
           description = optional(string)
-          inclusion = optional(string)
-          name = optional(string)
+          inclusion   = optional(string)
+          name        = optional(string)
         })))
         description = optional(string)
-        inclusion = optional(string)
-        name = optional(string)
+        inclusion   = optional(string)
+        name        = optional(string)
       })))
     }))
     execution_timeout_seconds = optional(number)
@@ -1540,8 +1546,8 @@ variable "redshift_storage_configuration" {
       table_names = optional(list(string))
     }))
     redshift_configuration = optional(object({
-        database_name = optional(string)
-      }))
+      database_name = optional(string)
+    }))
     type = optional(string)
   }))
   default = null
@@ -1552,7 +1558,7 @@ variable "redshift_query_engine_type" {
   type        = string
   default     = "SERVERLESS"
 
-  validation  {
+  validation {
     condition     = var.redshift_query_engine_type == "SERVERLESS" || var.redshift_query_engine_type == "PROVISIONED"
     error_message = "Redshift query engine type must be SERVERLESS or PROVISIONED."
   }
@@ -1563,30 +1569,30 @@ variable "redshift_query_engine_type" {
 variable "action_group_list" {
   description = "List of configurations for available action groups."
   type = list(object({
-    action_group_name = optional(string)
-    description = optional(string)
-    action_group_state = optional(string)
-    parent_action_group_signature = optional(string)
+    action_group_name                    = optional(string)
+    description                          = optional(string)
+    action_group_state                   = optional(string)
+    parent_action_group_signature        = optional(string)
     skip_resource_in_use_check_on_delete = optional(bool)
     action_group_executor = optional(object({
       custom_control = optional(string)
-      lambda = optional(string)
+      lambda         = optional(string)
     }))
     api_schema = optional(object({
       payload = optional(string)
       s3 = optional(object({
         s3_bucket_name = optional(string)
-        s3_object_key = optional(string)
+        s3_object_key  = optional(string)
       }))
     }))
     function_schema = optional(object({
       functions = optional(list(object({
-        description          = optional(string)
-        name                 = optional(string)
+        description = optional(string)
+        name        = optional(string)
         parameters = optional(map(object({
           description = optional(string)
-          required = optional(bool)
-          type = optional(string)
+          required    = optional(bool)
+          type        = optional(string)
         })))
         require_confirmation = optional(string)
       })))
@@ -1641,22 +1647,22 @@ variable "bda_kms_key_id" {
 
 variable "bda_tags" {
   description = "A list of tag keys and values for the Bedrock data automation project."
-  type        = list(object({
-    key = string
+  type = list(object({
+    key   = string
     value = string
   }))
-  default     = null
+  default = null
 
 }
 
 variable "bda_custom_output_config" {
   description = "A list of the BDA custom output configuartion blueprint(s)."
-  type        = list(object({
-      blueprint_arn = optional(string)
-      blueprint_stage = optional(string)
-      blueprint_version = optional(string)
-    }))
-  default     = null
+  type = list(object({
+    blueprint_arn     = optional(string)
+    blueprint_stage   = optional(string)
+    blueprint_version = optional(string)
+  }))
+  default = null
 }
 
 variable "bda_override_config_state" {
@@ -1665,10 +1671,10 @@ variable "bda_override_config_state" {
   default     = null
 }
 
- variable "bda_standard_output_configuration" {
+variable "bda_standard_output_configuration" {
   description = "Standard output is pre-defined extraction managed by Bedrock. It can extract information from documents, images, videos, and audio."
-  type        = object({
-    audio    = optional(object({
+  type = object({
+    audio = optional(object({
       extraction = optional(object({
         category = optional(object({
           state = optional(string)
@@ -1701,7 +1707,7 @@ variable "bda_override_config_state" {
         }))
       }))
     }))
-    image    = optional(object({
+    image = optional(object({
       extraction = optional(object({
         category = optional(object({
           state = optional(string)
@@ -1716,7 +1722,7 @@ variable "bda_override_config_state" {
         types = optional(list(string))
       }))
     }))
-    video    = optional(object({
+    video = optional(object({
       extraction = optional(object({
         category = optional(object({
           state = optional(string)
@@ -1733,9 +1739,9 @@ variable "bda_override_config_state" {
     }))
   })
   default = null
- }
+}
 
- # – BDA Blueprint – 
+# – BDA Blueprint – 
 
 variable "create_blueprint" {
   description = "Whether or not to create a BDA blueprint."
@@ -1780,18 +1786,18 @@ variable "blueprint_kms_key_id" {
 
 variable "blueprint_tags" {
   description = "A list of tag keys and values for the blueprint."
-  type        = list(object({
-    key = string
+  type = list(object({
+    key   = string
     value = string
   }))
-  default     = null
+  default = null
 }
 
 # - IAM -
 variable "permissions_boundary_arn" {
   description = "The ARN of the IAM permission boundary for the role."
   type        = string
-  default     = null  
+  default     = null
 }
 
 variable "agent_resource_role_arn" {

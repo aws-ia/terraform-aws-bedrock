@@ -21,7 +21,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_default" {
   knowledge_base_configuration = {
     type = "VECTOR"
     vector_knowledge_base_configuration = {
-      embedding_model_arn = var.kb_embedding_model_arn
+      embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
           dimensions = var.embedding_model_dimensions
@@ -74,7 +74,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_mongo" {
   knowledge_base_configuration = {
     type = var.kb_type
     vector_knowledge_base_configuration = {
-      embedding_model_arn = var.kb_embedding_model_arn
+      embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
           dimensions = var.embedding_model_dimensions
@@ -118,7 +118,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_opensearch" {
   knowledge_base_configuration = {
     type = var.kb_type
     vector_knowledge_base_configuration = {
-      embedding_model_arn = var.kb_embedding_model_arn
+      embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
           dimensions = var.embedding_model_dimensions
@@ -160,7 +160,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_neptune_analytics" {
   knowledge_base_configuration = {
     type = var.kb_type
     vector_knowledge_base_configuration = {
-      embedding_model_arn = var.kb_embedding_model_arn
+      embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
           dimensions = var.embedding_model_dimensions
@@ -204,7 +204,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_pinecone" {
   knowledge_base_configuration = {
     type = var.kb_type
     vector_knowledge_base_configuration = {
-      embedding_model_arn = var.kb_embedding_model_arn
+      embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
           dimensions = var.embedding_model_dimensions
@@ -252,7 +252,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_rds" {
   knowledge_base_configuration = {
     type = var.kb_type
     vector_knowledge_base_configuration = {
-      embedding_model_arn = var.kb_embedding_model_arn
+      embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
           dimensions = var.embedding_model_dimensions

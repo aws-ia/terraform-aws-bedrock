@@ -10,9 +10,9 @@ resource "awscc_kendra_index" "genai_kendra_index" {
     storage_capacity_units = var.kendra_index_storage_capacity
   }
   document_metadata_configurations = var.document_metadata_configurations
-  server_side_encryption_configuration = {
+  server_side_encryption_configuration = var.kendra_kms_key_id != null ? {
     kms_key_id = var.kendra_kms_key_id
-  }
+  } : null
   user_context_policy = var.kendra_index_user_context_policy
   user_token_configurations = var.user_token_configurations
   tags = var.kendra_index_tags

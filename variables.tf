@@ -250,6 +250,12 @@ variable "collaborator_name" {
   default     = "TerraformBedrockAgentCollaborator"
 }
 
+variable "relay_conversation_history" {
+  description = "Relay conversation history setting will share conversation history to collaborator if enabled."
+  type        = string
+  default     = "TO_COLLABORATOR" # TO_COLLABORATOR or DISABLED
+}
+
 variable "create_supervisor" {
   description = "Whether or not to create an agent supervisor."
   type        = bool
@@ -1120,6 +1126,12 @@ variable "prompt_version_tags" {
 
 variable "create_app_inference_profile" {
   description = "Whether or not to create an application inference profile."
+  type        = bool
+  default     = false
+}
+
+variable "use_app_inference_profile" {
+  description = "Whether or not to attach to the app_inference_profile_model_source."
   type        = bool
   default     = false
 }

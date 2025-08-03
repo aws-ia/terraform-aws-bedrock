@@ -5,6 +5,7 @@ locals {
   kendra_data_source_bucket_arn = var.create_kendra_s3_data_source ? (var.kb_s3_data_source != null ? var.kb_s3_data_source : awscc_s3_bucket.s3_data_source[0].arn) : null
   action_group_names = concat(var.action_group_lambda_names_list, [var.lambda_action_group_executor])
   agent_role_name = var.agent_resource_role_arn != null ? split("/", var.agent_resource_role_arn)[1] : ((var.create_agent || var.create_supervisor) ? aws_iam_role.agent_role[0].name : null)
+  kb_embedding_model_arn = replace(replace(var.kb_embedding_model_arn, "arn:aws", "arn:${local.partition}"), "us-east-1", local.region)
 }
 
 resource "aws_iam_role" "agent_role" {
@@ -78,7 +79,7 @@ resource "aws_iam_policy" "bedrock_knowledge_base_policy" {
         "Action" : [
           "bedrock:InvokeModel",
         ],
-        "Resource" : var.kb_embedding_model_arn
+        "Resource" : local.kb_embedding_model_arn
       },
       {
         "Effect" : "Allow",
@@ -191,7 +192,7 @@ resource "aws_iam_role_policy" "bedrock_kb_oss" {
       {
         Action   = ["aoss:*"]
         Effect   = "Allow"
-        Resource = ["arn:aws:aoss:${local.region}:${local.account_id}:*/*"]
+        Resource = ["arn:${local.partition}:aoss:${local.region}:${local.account_id}:*/*"]
       }
     ]
   })
@@ -263,7 +264,7 @@ resource "aws_iam_role_policy" "action_group_policy" {
 
 # Define the IAM role for Application Inference Profile
 resource "aws_iam_role" "application_inference_profile_role" {
-  count = var.create_app_inference_profile ? 1 : 0
+  count = var.create_app_inference_profile || var.use_app_inference_profile ? 1 : 0
   name  = "ApplicationInferenceProfile-${random_string.solution_prefix.result}"
 
   assume_role_policy = jsonencode({
@@ -282,7 +283,7 @@ resource "aws_iam_role" "application_inference_profile_role" {
 }
 
 resource "aws_iam_role_policy" "app_inference_profile_role_policy" {
-  count = var.create_app_inference_profile ? 1 : 0
+  count  = var.create_app_inference_profile || var.use_app_inference_profile ? 1 : 0
   policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
@@ -293,9 +294,9 @@ resource "aws_iam_role_policy" "app_inference_profile_role_policy" {
               "bedrock:CreateInferenceProfile"
           ],
           "Resource": [
-              "arn:aws:bedrock:*::foundation-model/*",
-              "arn:aws:bedrock:*:*:inference-profile/*",
-              "arn:aws:bedrock:*:*:application-inference-profile/*"
+              "arn:${local.partition}:bedrock:*::foundation-model/*",
+              "arn:${local.partition}:bedrock:*:*:inference-profile/*",
+              "arn:${local.partition}:bedrock:*:*:application-inference-profile/*"
           ]
         },
         {
@@ -309,8 +310,8 @@ resource "aws_iam_role_policy" "app_inference_profile_role_policy" {
               "bedrock:ListTagsForResource"
           ],
           "Resource": [
-              "arn:aws:bedrock:*:*:inference-profile/*",
-              "arn:aws:bedrock:*:*:application-inference-profile/*"
+              "arn:${local.partition}:bedrock:*:*:inference-profile/*",
+              "arn:${local.partition}:bedrock:*:*:application-inference-profile/*"
           ]
         }
     ]
@@ -341,8 +342,8 @@ resource "aws_iam_role_policy" "custom_model_policy" {
           "kms:Decrypt"
         ],
         "Resource": [
-          "arn:aws:s3:::${var.custom_model_training_uri}",
-          "arn:aws:s3:::${var.custom_model_training_uri}/*",
+          "arn:${local.partition}:s3:::${var.custom_model_training_uri}",
+          "arn:${local.partition}:s3:::${var.custom_model_training_uri}/*",
         ],
         "Condition": {
           "StringEquals": {
@@ -358,7 +359,7 @@ resource "aws_iam_role_policy" "custom_model_policy" {
           "s3:ListBucket",
           "kms:Decrypt"
         ],
-        "Resource": var.custom_model_output_uri == null ? "arn:aws:s3:::${awscc_s3_bucket.custom_model_output[0].id}/" : "arn:aws:s3:::${var.custom_model_output_uri}",
+        "Resource": var.custom_model_output_uri == null ? "arn:${local.partition}:s3:::${awscc_s3_bucket.custom_model_output[0].id}/" : "arn:${local.partition}:s3:::${var.custom_model_output_uri}",
           
         "Condition": {
           "StringEquals": {
@@ -374,7 +375,7 @@ resource "aws_iam_role_policy" "custom_model_policy" {
           "s3:ListBucket",
           "kms:Decrypt"
         ],
-        "Resource": var.custom_model_output_uri == null ? "arn:aws:s3:::${awscc_s3_bucket.custom_model_output[0].id}/*" : "arn:aws:s3:::${var.custom_model_output_uri}/*",
+        "Resource": var.custom_model_output_uri == null ? "arn:${local.partition}:s3:::${awscc_s3_bucket.custom_model_output[0].id}/*" : "arn:${local.partition}:s3:::${var.custom_model_output_uri}/*",
         "Condition": {
           "StringEquals": {
             "aws:PrincipalAccount": local.account_id
@@ -400,7 +401,7 @@ resource "aws_iam_policy" "bedrock_kb_kendra" {
           "kendra:DescribeIndex"
         ]
         "Effect"   = "Allow"
-        "Resource" = ["arn:aws:kendra:${local.region}:${local.account_id}:index/${local.kendra_index_id}"]
+        "Resource" = ["arn:${local.partition}:kendra:${local.region}:${local.account_id}:index/${local.kendra_index_id}"]
       }
     ]
   })
@@ -450,7 +451,7 @@ resource "awscc_iam_role_policy" "kendra_role_policy" {
       {
         Effect   = "Allow"
         Action   = "logs:CreateLogGroup",
-        Resource = "arn:aws:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/kendra/*"
+        Resource = "arn:${local.partition}:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/kendra/*"
       },
       {
         Effect = "Allow"
@@ -459,7 +460,7 @@ resource "awscc_iam_role_policy" "kendra_role_policy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ],
-        Resource = "arn:aws:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/kendra/*:log-stream:*"
+        Resource = "arn:${local.partition}:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/kendra/*:log-stream:*"
       }
     ]
   })
@@ -508,7 +509,7 @@ resource "awscc_iam_role" "kendra_s3_datasource_role" {
                 "kendra:BatchPutDocument",
                 "kendra:BatchDeleteDocument"
             ],
-            Resource: "arn:aws:kendra:${local.region}:${local.account_id}:index/${local.kendra_index_id}"
+            Resource: "arn:${local.partition}:kendra:${local.region}:${local.account_id}:index/${local.kendra_index_id}"
         }
         ]
       })
@@ -580,7 +581,7 @@ resource "aws_iam_policy" "bedrock_kb_sql_serverless" {
                   "redshift-data:ExecuteStatement"
               ],
               "Resource": [
-                  "arn:aws:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
+                  "arn:${local.partition}:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
               ]
           },
           {
@@ -588,7 +589,7 @@ resource "aws_iam_policy" "bedrock_kb_sql_serverless" {
               "Effect": "Allow",
               "Action": "redshift-serverless:GetCredentials",
               "Resource": [
-                  "arn:aws:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
+                  "arn:${local.partition}:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
               ]
           }
     ]
@@ -610,7 +611,7 @@ resource "aws_iam_policy" "bedrock_kb_sql_provisioned" {
                 "redshift-data:ExecuteStatement"
             ],
             "Resource": [
-                "arn:aws:redshift:${local.region}:${local.account_id}:cluster:${var.provisioned_config_cluster_identifier}"
+                "arn:${local.partition}:redshift:${local.region}:${local.account_id}:cluster:${var.provisioned_config_cluster_identifier}"
             ]
         },
         {
@@ -618,7 +619,7 @@ resource "aws_iam_policy" "bedrock_kb_sql_provisioned" {
             "Effect": "Allow",
             "Action": "redshift:GetClusterCredentialsWithIAM",
             "Resource": [
-                "arn:aws:redshift:${local.region}:${local.account_id}:dbname:${var.provisioned_config_cluster_identifier}/*"
+                "arn:${local.partition}:redshift:${local.region}:${local.account_id}:dbname:${var.provisioned_config_cluster_identifier}/*"
             ]
         }
     ]

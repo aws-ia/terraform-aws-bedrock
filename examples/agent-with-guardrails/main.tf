@@ -13,15 +13,7 @@ module "bedrock" {
   blocked_outputs_messaging = "I apologize, but I cannot provide that information due to content policy restrictions."
   guardrail_description     = "Enhanced guardrail with advanced configuration"
   
-  # Cross region configuration
-  # guardrail_cross_region_config = {
-  #   guardrail_profile_arn = "arn:aws:bedrock:us-east-1:123456789012:guardrail-profile/example-profile"
-  # }
-  
-  # Content filters with tier configuration
-  content_filters_tier_config = {
-    tier_name = "STANDARD"
-  }
+ 
   
   # Content filters configuration
   filters_config = [

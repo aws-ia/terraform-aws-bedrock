@@ -61,13 +61,13 @@ variable "tags" {
 
 # – Orchestration Configuration –
 variable "orchestration_type" {
-  description = "The type of orchestration strategy for the agent. Valid values: STANDARD, CUSTOM"
+  description = "The type of orchestration strategy for the agent. Valid values: DEFAULT, CUSTOM_ORCHESTRATION"
   type        = string
-  default     = "STANDARD"
+  default     = "DEFAULT"
   
   validation {
-    condition     = contains(["STANDARD", "CUSTOM"], var.orchestration_type)
-    error_message = "The orchestration_type must be either STANDARD or CUSTOM."
+    condition     = contains(["DEFAULT", "CUSTOM_ORCHESTRATION"], var.orchestration_type)
+    error_message = "The orchestration_type must be either DEFAULT or CUSTOM_ORCHESTRATION."
   }
 }
 

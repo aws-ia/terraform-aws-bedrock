@@ -20,7 +20,7 @@ module "bedrock" {
   
   # Content filters with tier configuration
   content_filters_tier_config = {
-    tier_name = "DEFAULT"
+    tier_name = "STANDARD"
   }
   
   # Content filters configuration
@@ -73,7 +73,7 @@ module "bedrock" {
   
   # Topics with tier configuration
   topics_tier_config = {
-    tier_name = "DEFAULT"
+    tier_name = "STANDARD"
   }
   
   # Topics configuration

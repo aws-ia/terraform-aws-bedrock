@@ -881,7 +881,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The namespace to be used to write new data to your pinecone database | `string` | `null` | no |
 | <a name="input_number_of_replicas"></a> [number\_of\_replicas](#input\_number\_of\_replicas) | The number of replica shards for the OpenSearch index. | `string` | `"1"` | no |
 | <a name="input_number_of_shards"></a> [number\_of\_shards](#input\_number\_of\_shards) | The number of shards for the OpenSearch index. This setting cannot be changed after index creation. | `string` | `"1"` | no |
-| <a name="input_orchestration_type"></a> [orchestration\_type](#input\_orchestration\_type) | The type of orchestration strategy for the agent. Valid values: STANDARD, CUSTOM | `string` | `"STANDARD"` | no |
+| <a name="input_orchestration_type"></a> [orchestration\_type](#input\_orchestration\_type) | The type of orchestration strategy for the agent. Valid values: DEFAULT, CUSTOM\_ORCHESTRATION | `string` | `"DEFAULT"` | no |
 | <a name="input_override_lambda_arn"></a> [override\_lambda\_arn](#input\_override\_lambda\_arn) | The ARN of the Lambda function to use when parsing the raw foundation model output in parts of the agent sequence. | `string` | `null` | no |
 | <a name="input_parent_action_group_signature"></a> [parent\_action\_group\_signature](#input\_parent\_action\_group\_signature) | Action group signature for a builtin action. | `string` | `null` | no |
 | <a name="input_parser_mode"></a> [parser\_mode](#input\_parser\_mode) | Specifies whether to override the default parser Lambda function. | `string` | `null` | no |

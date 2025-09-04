@@ -18,6 +18,15 @@ locals {
         max_tokens = var.semantic_max_tokens 
       }
     }
+    context_enrichment_configuration = var.create_context_enrichment_config == false ? null : {
+      type = var.context_enrichment_type
+      bedrock_foundation_model_configuration = {
+        model_arn = var.context_enrichment_model_arn
+        enrichment_strategy_configuration = {
+          method = var.enrichment_strategy_method
+        }
+      }
+    }
     custom_transformation_configuration = var.create_custom_tranformation_config == false ? null : {
       intermediate_storage = {
         s3_location = {
@@ -32,9 +41,17 @@ locals {
         parsing_prompt = {
           parsing_prompt_text = var.parsing_prompt_text
         }
+        parsing_modality = var.parsing_modality
+      }
+      bedrock_data_automation_configuration = var.create_bedrock_data_automation_config == false ? null : {
+        parsing_modality = var.parsing_modality
       }
       parsing_strategy = var.parsing_strategy
     }
+  }
+  
+  server_side_encryption_configuration = var.create_server_side_encryption_config == false ? null : {
+    kms_key_arn = var.data_source_kms_key_arn
   }
 }
 
@@ -70,6 +87,7 @@ resource "awscc_bedrock_data_source" "knowledge_base_ds" {
   count                = var.create_s3_data_source ? 1 : 0
   knowledge_base_id    = var.create_default_kb ? awscc_bedrock_knowledge_base.knowledge_base_default[0].id : var.existing_kb
   name                 = "${random_string.solution_prefix.result}-${var.kb_name}DataSource"
+  description          = var.data_source_description
   data_deletion_policy = var.data_deletion_policy
   data_source_configuration = {
     type = "S3"
@@ -80,6 +98,7 @@ resource "awscc_bedrock_data_source" "knowledge_base_ds" {
     }
   }
   vector_ingestion_configuration = var.create_vector_ingestion_configuration == false ? null : local.vector_ingestion_configuration
+  server_side_encryption_configuration = local.server_side_encryption_configuration
 }
 
 resource "aws_cloudwatch_log_group" "knowledge_base_cwl" {
@@ -123,16 +142,19 @@ resource "awscc_bedrock_data_source" "knowledge_base_web_crawler" {
   count             = var.create_web_crawler ? 1 : 0
   knowledge_base_id = var.create_default_kb ? awscc_bedrock_knowledge_base.knowledge_base_default[0].id : var.existing_kb
   name              = "${random_string.solution_prefix.result}-${var.kb_name}DataSourceWebCrawler"
+  description       = var.data_source_description
   data_source_configuration = {
     type = "WEB"
     web_configuration = {
       crawler_configuration = {
         crawler_limits = {
           rate_limit = var.rate_limit
+          max_pages  = var.max_pages
         }
         exclusion_filters = var.exclusion_filters
         inclusion_filters = var.inclusion_filters
         scope             = var.crawler_scope
+        user_agent        = var.user_agent
       }
       source_configuration = {
         url_configuration = {
@@ -142,6 +164,7 @@ resource "awscc_bedrock_data_source" "knowledge_base_web_crawler" {
     }
   }
   vector_ingestion_configuration = var.create_vector_ingestion_configuration == false ? null : local.vector_ingestion_configuration
+  server_side_encryption_configuration = local.server_side_encryption_configuration
 }
 
 # – Knowledge Base Confluence Data Source
@@ -149,6 +172,7 @@ resource "awscc_bedrock_data_source" "knowledge_base_confluence" {
   count             = var.create_confluence ? 1 : 0
   knowledge_base_id = var.create_default_kb ? awscc_bedrock_knowledge_base.knowledge_base_default[0].id : var.existing_kb
   name              = "${random_string.solution_prefix.result}-${var.kb_name}DataSourceConfluence"
+  description       = var.data_source_description
   data_source_configuration = {
     type = "CONFLUENCE"
     confluence_configuration = {
@@ -169,6 +193,7 @@ resource "awscc_bedrock_data_source" "knowledge_base_confluence" {
     }
   }
   vector_ingestion_configuration = var.create_vector_ingestion_configuration == false ? null : local.vector_ingestion_configuration
+  server_side_encryption_configuration = local.server_side_encryption_configuration
 }
 
 # – Knowledge Base Sharepoint Data Source
@@ -176,7 +201,8 @@ resource "awscc_bedrock_data_source" "knowledge_base_sharepoint" {
   count             = var.create_sharepoint ? 1 : 0
   knowledge_base_id = var.create_default_kb ? awscc_bedrock_knowledge_base.knowledge_base_default[0].id : var.existing_kb
   name              = "${random_string.solution_prefix.result}-${var.kb_name}DataSourceSharepoint"
-    data_source_configuration = {
+  description       = var.data_source_description
+  data_source_configuration = {
     type = "SHAREPOINT"
     share_point_configuration = { 
         crawler_configuration = {
@@ -198,6 +224,7 @@ resource "awscc_bedrock_data_source" "knowledge_base_sharepoint" {
     }
   }
   vector_ingestion_configuration = var.create_vector_ingestion_configuration == false ? null : local.vector_ingestion_configuration
+  server_side_encryption_configuration = local.server_side_encryption_configuration
 }
 
 # – Knowledge Base Salesforce Data Source
@@ -205,6 +232,7 @@ resource "awscc_bedrock_data_source" "knowledge_base_salesforce" {
   count             = var.create_salesforce ? 1 : 0
   knowledge_base_id = var.create_default_kb ? awscc_bedrock_knowledge_base.knowledge_base_default[0].id : var.existing_kb
   name              = "${random_string.solution_prefix.result}-${var.kb_name}DataSourceSalesforce"
+  description       = var.data_source_description
   data_source_configuration = {
     type = "SALESFORCE"
     salesforce_configuration = {
@@ -224,4 +252,5 @@ resource "awscc_bedrock_data_source" "knowledge_base_salesforce" {
     }
   }
   vector_ingestion_configuration = var.create_vector_ingestion_configuration == false ? null : local.vector_ingestion_configuration
+  server_side_encryption_configuration = local.server_side_encryption_configuration
 }

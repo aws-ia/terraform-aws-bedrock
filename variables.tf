@@ -59,6 +59,24 @@ variable "tags" {
   default     = null
 }
 
+# – Orchestration Configuration –
+variable "orchestration_type" {
+  description = "The type of orchestration strategy for the agent. Valid values: STANDARD, CUSTOM"
+  type        = string
+  default     = "STANDARD"
+  
+  validation {
+    condition     = contains(["STANDARD", "CUSTOM"], var.orchestration_type)
+    error_message = "The orchestration_type must be either STANDARD or CUSTOM."
+  }
+}
+
+variable "custom_orchestration_lambda_arn" {
+  description = "ARN of the Lambda function to use for custom orchestration. Required when orchestration_type is set to CUSTOM."
+  type        = string
+  default     = null
+}
+
 # – Prompt Override Configuration –
 variable "prompt_override" {
   description = "Whether to provide prompt override configuration."
@@ -115,6 +133,12 @@ variable "prompt_state" {
     condition     = var.prompt_state == "ENABLED" || var.prompt_state == "DISABLED" || var.prompt_state == null
     error_message = "The prompt_state must be set to ENABLED or DISABLED."
   }
+}
+
+variable "additional_model_request_fields" {
+  description = "Additional model request fields for prompt configuration in JSON format."
+  type        = string
+  default     = null
 }
 
 variable "override_lambda_arn" {
@@ -230,7 +254,7 @@ variable "agent_alias_tags" {
   default     = null
 }
 
-# – Agent Collaborator – 
+# – Agent Collaborator – 
 
 variable "create_collaborator" {
   description = "Whether or not to create an agent collaborator."
@@ -437,6 +461,33 @@ variable "guardrail_kms_key_arn" {
   default     = null
 }
 
+# – Guardrail Cross Region Configuration –
+variable "guardrail_cross_region_config" {
+  description = "The system-defined guardrail profile to use with your guardrail."
+  type = object({
+    guardrail_profile_arn = optional(string)
+  })
+  default = null
+}
+
+# – Guardrail Content Policy Tier Configuration –
+variable "content_filters_tier_config" {
+  description = "Guardrail tier config for content policy."
+  type = object({
+    tier_name = optional(string)
+  })
+  default = null
+}
+
+# – Guardrail Topic Policy Tier Configuration –
+variable "topics_tier_config" {
+  description = "Guardrail tier config for topic policy."
+  type = object({
+    tier_name = optional(string)
+  })
+  default = null
+}
+
 
 # – Knowledge Base –
 
@@ -462,6 +513,25 @@ variable "data_deletion_policy" {
   description = "Policy for deleting data from the data source. Can be either DELETE or RETAIN."
   type        = string
   default     = "DELETE"
+}
+
+# – OpenSearch Managed Cluster Configuration –
+variable "create_opensearch_managed_config" {
+  description = "Whether or not to use OpenSearch Managed Cluster configuration"
+  type        = bool
+  default     = false
+}
+
+variable "domain_arn" {
+  description = "The Amazon Resource Name (ARN) of the OpenSearch domain."
+  type        = string
+  default     = null
+}
+
+variable "domain_endpoint" {
+  description = "The endpoint URL the OpenSearch domain."
+  type        = string
+  default     = null
 }
 
 # – S3 Data Source –
@@ -538,6 +608,18 @@ variable "seed_urls" {
   description = "A list of web urls."
   type        = list(object({ url = string }))
   default     = []
+}
+
+variable "user_agent" {
+  description = "The suffix that will be included in the user agent header for web crawling."
+  type        = string
+  default     = null
+}
+
+variable "max_pages" {
+  description = "Maximum number of pages the crawler can crawl."
+  type        = number
+  default     = null
 }
 
 # – Confluence Data Source – 
@@ -631,6 +713,63 @@ variable "create_salesforce" {
 
 variable "salesforce_credentials_secret_arn" {
   description = "The ARN of an AWS Secrets Manager secret that stores your authentication credentials for your Salesforce instance URL."
+  type        = string
+  default     = null
+}
+
+# – Server-Side Encryption Configuration –
+variable "create_server_side_encryption_config" {
+  description = "Whether or not to create server-side encryption configuration for the data source."
+  type        = bool
+  default     = false
+}
+
+variable "data_source_kms_key_arn" {
+  description = "The ARN of the AWS KMS key used to encrypt the data source."
+  type        = string
+  default     = null
+}
+
+# – Context Enrichment Configuration –
+variable "create_context_enrichment_config" {
+  description = "Whether or not to create context enrichment configuration for the data source."
+  type        = bool
+  default     = false
+}
+
+variable "context_enrichment_type" {
+  description = "Enrichment type to be used for the vector database."
+  type        = string
+  default     = null
+}
+
+variable "context_enrichment_model_arn" {
+  description = "The model's ARN for context enrichment."
+  type        = string
+  default     = null
+}
+
+variable "enrichment_strategy_method" {
+  description = "Enrichment Strategy method."
+  type        = string
+  default     = null
+}
+
+# – Bedrock Data Automation Configuration –
+variable "create_bedrock_data_automation_config" {
+  description = "Whether or not to create Bedrock Data Automation configuration for the data source."
+  type        = bool
+  default     = false
+}
+
+variable "parsing_modality" {
+  description = "Determine how parsed content will be stored."
+  type        = string
+  default     = null
+}
+
+variable "data_source_description" {
+  description = "Description of the data source."
   type        = string
   default     = null
 }
@@ -1086,19 +1225,76 @@ variable "variants_list" {
     name          = optional(string)
     template_type = optional(string)
     model_id      = optional(string)
+    additional_model_request_fields = optional(string)
+    metadata = optional(list(object({
+      key   = optional(string)
+      value = optional(string)
+    })))
+    gen_ai_resource = optional(object({
+      agent = optional(object({
+        agent_identifier = optional(string)
+      }))
+    }))
+    
     inference_configuration = optional(object({
       text = optional(object({
         max_tokens     = optional(number)
         stop_sequences = optional(list(string))
         temperature    = optional(number)
         top_p          = optional(number)
+        top_k          = optional(number)
       }))
     }))
 
     template_configuration = optional(object({
+      chat = optional(object({
+        input_variables = optional(list(object({ 
+          name = optional(string) 
+        })))
+        messages = optional(list(object({
+          content = optional(list(object({
+            cache_point = optional(object({
+              type = optional(string)
+            }))
+            text = optional(string)
+          })))
+          role = optional(string)
+        })))
+        system = optional(list(object({
+          cache_point = optional(object({
+            type = optional(string)
+          }))
+          text = optional(string)
+        })))
+        tool_configuration = optional(object({
+          tool_choice = optional(object({
+            any  = optional(string)
+            auto = optional(string)
+            tool = optional(object({
+              name = optional(string)
+            }))
+          }))
+          tools = optional(list(object({
+            cache_point = optional(object({
+              type = optional(string)
+            }))
+            tool_spec = optional(object({
+              description = optional(string)
+              input_schema = optional(object({
+                json = optional(string)
+              }))
+              name = optional(string)
+            }))
+          })))
+        }))
+      })),
+      
       text = optional(object({
         input_variables = optional(list(object({ name = optional(string) })))
         text            = optional(string)
+        cache_point = optional(object({
+          type = optional(string)
+        }))
         text_s3_location = optional(object({
           bucket  = optional(string)
           key     = optional(string)
@@ -1489,11 +1685,12 @@ variable "sql_kb_workgroup_arn" {
   default     = null
 }
 
+# Auth Configuration Types
 variable "provisioned_auth_configuration" {
   description = "Configurations for provisioned Redshift query engine"
   type = object({
     database_user                = optional(string)
-    type                         = optional(string)
+    type                         = optional(string)  # Auth type explicitly defined
     username_password_secret_arn = optional(string)
   })
   default = null
@@ -1505,36 +1702,37 @@ variable "provisioned_config_cluster_identifier" {
   default     = null
 }
 
-
+# Auth Configuration Types
 variable "serverless_auth_configuration" {
   description = "Configuration for the Redshift serverless query engine."
   type = object({
-    type                         = optional(string)
+    type                         = optional(string)  # Auth type explicitly defined
     username_password_secret_arn = optional(string)
   })
   default = null
 }
 
+# Query Generation Configuration with Curated Queries and Tables/Columns
 variable "query_generation_configuration" {
   description = "Configurations for generating Redshift engine queries."
   type = object({
     generation_context = optional(object({
       curated_queries = optional(list(object({
-        natural_language = optional(string)
-        sql              = optional(string)
+        natural_language = optional(string)  # Question for the query
+        sql              = optional(string)  # SQL answer for the query
       })))
       tables = optional(list(object({
         columns = optional(list(object({
-          description = optional(string)
-          inclusion   = optional(string)
-          name        = optional(string)
+          description = optional(string)  # Column description
+          inclusion   = optional(string)  # Include or exclude status
+          name        = optional(string)  # Column name
         })))
-        description = optional(string)
-        inclusion   = optional(string)
-        name        = optional(string)
+        description = optional(string)  # Table description
+        inclusion   = optional(string)  # Include or exclude status
+        name        = optional(string)  # Table name (three-part notation)
       })))
     }))
-    execution_timeout_seconds = optional(number)
+    execution_timeout_seconds = optional(number)  # Max query execution timeout
   })
   default = null
 }
@@ -1543,7 +1741,7 @@ variable "redshift_storage_configuration" {
   description = "List of configurations for available Redshift query engine storage types."
   type = list(object({
     aws_data_catalog_configuration = optional(object({
-      table_names = optional(list(string))
+      table_names = optional(list(string))  # List of table names in AWS Data Catalog
     }))
     redshift_configuration = optional(object({
       database_name = optional(string)

@@ -6,7 +6,7 @@ locals {
   region     = data.aws_region.current.name
   account_id = data.aws_caller_identity.current.account_id
   partition  = data.aws_partition.current.partition
-  create_kb  = var.create_default_kb || var.create_rds_config || var.create_mongo_config || var.create_pinecone_config || var.create_opensearch_config || var.create_kb || var.create_kendra_config
+  create_kb  = var.create_default_kb || var.create_rds_config || var.create_mongo_config || var.create_pinecone_config || var.create_opensearch_config || var.create_opensearch_managed_config || var.create_kb || var.create_kendra_config
   foundation_model = var.create_agent ? var.foundation_model : (var.create_supervisor ? var.supervisor_model : null)
 }
 

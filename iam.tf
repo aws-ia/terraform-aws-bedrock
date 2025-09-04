@@ -204,10 +204,10 @@ resource "aws_iam_role_policy" "bedrock_kb_oss" {
   })
 }
 
-resource "aws_iam_role_policy" "bedrock_kb_opensearch_managed" {
+resource "aws_iam_policy" "bedrock_kb_opensearch_managed" {
   count = var.kb_role_arn != null || var.create_opensearch_managed_config == false ? 0 : 1
   name  = "AmazonBedrockOpenSearchManagedPolicyForKnowledgeBase_${var.kb_name}"
-  role  = aws_iam_role.bedrock_knowledge_base_role[count.index].name
+  
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

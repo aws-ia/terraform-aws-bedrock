@@ -24,7 +24,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_default" {
       embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
-          dimensions = var.embedding_model_dimensions
+          dimensions          = var.embedding_model_dimensions
           embedding_data_type = var.embedding_data_type
         }
       } : null
@@ -40,7 +40,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_default" {
       } : null
     }
   }
-  depends_on = [ time_sleep.wait_after_index_creation ]
+  depends_on = [time_sleep.wait_after_index_creation]
 }
 
 # – Existing Vector KBs –
@@ -77,7 +77,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_mongo" {
       embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
-          dimensions = var.embedding_model_dimensions
+          dimensions          = var.embedding_model_dimensions
           embedding_data_type = var.embedding_data_type
         }
       } : null
@@ -106,8 +106,8 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_opensearch_managed" {
   storage_configuration = {
     type = "OPENSEARCH_MANAGED_CLUSTER"
     opensearch_managed_cluster_configuration = {
-      domain_arn      = var.domain_arn
-      domain_endpoint = var.domain_endpoint
+      domain_arn        = var.domain_arn
+      domain_endpoint   = var.domain_endpoint
       vector_index_name = var.vector_index_name
       field_mapping = {
         metadata_field = var.metadata_field
@@ -122,7 +122,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_opensearch_managed" {
       embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
-          dimensions = var.embedding_model_dimensions
+          dimensions          = var.embedding_model_dimensions
           embedding_data_type = var.embedding_data_type
         }
       } : null
@@ -166,7 +166,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_opensearch" {
       embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
-          dimensions = var.embedding_model_dimensions
+          dimensions          = var.embedding_model_dimensions
           embedding_data_type = var.embedding_data_type
         }
       } : null
@@ -208,7 +208,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_neptune_analytics" {
       embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
-          dimensions = var.embedding_model_dimensions
+          dimensions          = var.embedding_model_dimensions
           embedding_data_type = var.embedding_data_type
         }
       } : null
@@ -252,7 +252,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_pinecone" {
       embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
-          dimensions = var.embedding_model_dimensions
+          dimensions          = var.embedding_model_dimensions
           embedding_data_type = var.embedding_data_type
         }
       } : null
@@ -286,10 +286,10 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_rds" {
       resource_arn           = var.resource_arn
       table_name             = var.table_name
       field_mapping = {
-        metadata_field       = var.metadata_field
-        primary_key_field    = var.primary_key_field
-        text_field           = var.text_field
-        vector_field         = var.vector_field
+        metadata_field        = var.metadata_field
+        primary_key_field     = var.primary_key_field
+        text_field            = var.text_field
+        vector_field          = var.vector_field
         custom_metadata_field = var.custom_metadata_field
       }
     }
@@ -300,7 +300,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_rds" {
       embedding_model_arn = local.kb_embedding_model_arn
       embedding_model_configuration = var.embedding_model_dimensions != null ? {
         bedrock_embedding_model_configuration = {
-          dimensions = var.embedding_model_dimensions
+          dimensions          = var.embedding_model_dimensions
           embedding_data_type = var.embedding_data_type
         }
       } : null
@@ -334,7 +334,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_kendra" {
     }
   }
 
-  depends_on = [ time_sleep.wait_after_kendra_index_creation, time_sleep.wait_after_kendra_s3_data_source_creation ]
+  depends_on = [time_sleep.wait_after_kendra_index_creation, time_sleep.wait_after_kendra_s3_data_source_creation]
 }
 
 # – SQL Knowledge Base –
@@ -355,22 +355,22 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_sql" {
           serverless_configuration = var.sql_kb_workgroup_arn == null ? null : {
             workgroup_arn = var.sql_kb_workgroup_arn
             auth_configuration = var.serverless_auth_configuration != null ? {
-              type = var.serverless_auth_configuration.type
+              type                         = var.serverless_auth_configuration.type
               username_password_secret_arn = var.serverless_auth_configuration.username_password_secret_arn
             } : null
           }
           provisioned_configuration = var.provisioned_config_cluster_identifier == null ? null : {
             cluster_identifier = var.provisioned_config_cluster_identifier
             auth_configuration = var.provisioned_auth_configuration != null ? {
-              type = var.provisioned_auth_configuration.type
-              database_user = var.provisioned_auth_configuration.database_user
+              type                         = var.provisioned_auth_configuration.type
+              database_user                = var.provisioned_auth_configuration.database_user
               username_password_secret_arn = var.provisioned_auth_configuration.username_password_secret_arn
             } : null
-          } 
+          }
           type = var.redshift_query_engine_type
         }
         query_generation_configuration = var.query_generation_configuration
-        storage_configurations = var.redshift_storage_configuration
+        storage_configurations         = var.redshift_storage_configuration
       }
     }
   }

@@ -39,6 +39,6 @@ provider "awscc" {
 }
 
 provider "opensearch" {
-  url         = "n/a" 
+  url         = "n/a"
   healthcheck = false
 }

@@ -5,8 +5,8 @@
 #####################################################################################
 
 module "bedrock" {
-  source = "../.." # local example
+  source             = "../.." # local example
   create_agent_alias = true
-  foundation_model = "anthropic.claude-v2"
-  instruction = "You are an automotive assisant who can provide detailed information about cars to a customer."
+  foundation_model   = "anthropic.claude-v2"
+  instruction        = "You are an automotive assisant who can provide detailed information about cars to a customer."
 }

@@ -404,8 +404,16 @@ variable "guardrail_description" {
 
 variable "filters_config" {
   description = "List of content filter configs in content policy."
-  type        = list(map(string))
-  default     = null
+  type = list(object({
+    type              = string
+    input_strength    = string
+    output_strength   = string
+    input_action      = optional(string)
+    output_action     = optional(string)
+    input_modalities  = optional(list(string))
+    output_modalities = optional(list(string))
+  }))
+  default = []
 }
 
 variable "contextual_grounding_policy_filters" {

@@ -197,9 +197,6 @@ resource "awscc_bedrock_guardrail" "guardrail" {
   blocked_outputs_messaging = var.blocked_outputs_messaging
   description               = var.guardrail_description
   
-  # Cross region configuration
-  cross_region_config = var.guardrail_cross_region_config
-
   # Content policy configuration
   content_policy_config = {
     filters_config = var.filters_config

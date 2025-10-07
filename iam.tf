@@ -131,7 +131,7 @@ resource "aws_iam_policy" "bedrock_kb_s3_decryption_policy" {
         "Resource" : var.kb_s3_data_source_kms_arn
         "Condition" : {
           "StringEquals" : {
-            "kms:ViaService" : ["s3.${data.aws_region.current.region}.amazonaws.com"]
+            "kms:ViaService" : ["s3.${data.aws_region.current.name}.amazonaws.com"]
           }
         }
       }

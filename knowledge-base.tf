@@ -104,7 +104,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_opensearch_managed" {
   tags        = var.kb_tags
 
   storage_configuration = {
-    type = "OPENSEARCH_MANAGED_CLUSTER"
+    type = "OPENSEARCH_SERVERLESS"
     opensearch_managed_cluster_configuration = {
       domain_arn      = var.domain_arn
       domain_endpoint = var.domain_endpoint

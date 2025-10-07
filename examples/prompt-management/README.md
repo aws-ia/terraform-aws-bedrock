@@ -5,8 +5,8 @@ This example shows how to deploy a basic Bedrock prompt with version.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.7 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~>5.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.13.1 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
 | <a name="requirement_awscc"></a> [awscc](#requirement\_awscc) | >= 1.0.0 |
 | <a name="requirement_opensearch"></a> [opensearch](#requirement\_opensearch) | = 2.2.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.6.0 |

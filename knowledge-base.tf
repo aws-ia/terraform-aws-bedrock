@@ -95,6 +95,51 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_mongo" {
   }
 }
 
+# – OpenSearch Managed Cluster –
+resource "awscc_bedrock_knowledge_base" "knowledge_base_opensearch_managed" {
+  count       = var.create_opensearch_managed_config ? 1 : 0
+  name        = "${random_string.solution_prefix.result}-${var.kb_name}"
+  description = var.kb_description
+  role_arn    = var.kb_role_arn != null ? var.kb_role_arn : aws_iam_role.bedrock_knowledge_base_role[0].arn
+  tags        = var.kb_tags
+
+  storage_configuration = {
+    type = "OPENSEARCH_MANAGED_CLUSTER"
+    opensearch_managed_cluster_configuration = {
+      domain_arn      = var.domain_arn
+      domain_endpoint = var.domain_endpoint
+      vector_index_name = var.vector_index_name
+      field_mapping = {
+        metadata_field = var.metadata_field
+        text_field     = var.text_field
+        vector_field   = var.vector_field
+      }
+    }
+  }
+  knowledge_base_configuration = {
+    type = var.kb_type
+    vector_knowledge_base_configuration = {
+      embedding_model_arn = local.kb_embedding_model_arn
+      embedding_model_configuration = var.embedding_model_dimensions != null ? {
+        bedrock_embedding_model_configuration = {
+          dimensions = var.embedding_model_dimensions
+          embedding_data_type = var.embedding_data_type
+        }
+      } : null
+      supplemental_data_storage_configuration = var.create_supplemental_data_storage ? {
+        supplemental_data_storage_locations = [
+          {
+            supplemental_data_storage_location_type = "S3"
+            s3_location = {
+              uri = var.supplemental_data_s3_uri
+            }
+          }
+        ]
+      } : null
+    }
+  }
+}
+
 # – OpenSearch Serverless –
 resource "awscc_bedrock_knowledge_base" "knowledge_base_opensearch" {
   count       = var.create_opensearch_config ? 1 : 0
@@ -273,7 +318,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_rds" {
   }
 }
 
-# – Kendra Knowledge Base – 
+# – Kendra Knowledge Base – 
 
 resource "awscc_bedrock_knowledge_base" "knowledge_base_kendra" {
   count       = var.create_kendra_config ? 1 : 0
@@ -292,7 +337,7 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_kendra" {
   depends_on = [ time_sleep.wait_after_kendra_index_creation, time_sleep.wait_after_kendra_s3_data_source_creation ]
 }
 
-# – SQL Knowledge Base –
+# – SQL Knowledge Base –
 
 resource "awscc_bedrock_knowledge_base" "knowledge_base_sql" {
   count       = var.create_sql_config ? 1 : 0
@@ -309,19 +354,24 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_sql" {
         query_engine_configuration = {
           serverless_configuration = var.sql_kb_workgroup_arn == null ? null : {
             workgroup_arn = var.sql_kb_workgroup_arn
-            auth_configuration = var.serverless_auth_configuration
+            auth_configuration = var.serverless_auth_configuration != null ? {
+              type = var.serverless_auth_configuration.type
+              username_password_secret_arn = var.serverless_auth_configuration.username_password_secret_arn
+            } : null
           }
           provisioned_configuration = var.provisioned_config_cluster_identifier == null ? null : {
             cluster_identifier = var.provisioned_config_cluster_identifier
-            auth_configuration = var.provisioned_auth_configuration
+            auth_configuration = var.provisioned_auth_configuration != null ? {
+              type = var.provisioned_auth_configuration.type
+              database_user = var.provisioned_auth_configuration.database_user
+              username_password_secret_arn = var.provisioned_auth_configuration.username_password_secret_arn
+            } : null
           } 
           type = var.redshift_query_engine_type
         }
         query_generation_configuration = var.query_generation_configuration
         storage_configurations = var.redshift_storage_configuration
       }
-      
     }
   }
-
 }

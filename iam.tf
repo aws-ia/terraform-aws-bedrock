@@ -61,7 +61,7 @@ resource "aws_iam_role" "bedrock_knowledge_base_role" {
 
 # Attach a policy to allow necessary permissions for the Bedrock Knowledge Base
 resource "aws_iam_policy" "bedrock_knowledge_base_policy" {
-  count = var.kb_role_arn != null || var.create_default_kb == false || var.create_kendra_config == true ? 0 : 1
+  count = var.kb_role_arn != null || var.create_default_kb == false || var.create_kendra_config == true || var.create_opensearch_managed_config == true ? 0 : 1
   name  = "AmazonBedrockKnowledgeBasePolicy-${random_string.solution_prefix.result}"
 
   policy = jsonencode({
@@ -131,7 +131,7 @@ resource "aws_iam_policy" "bedrock_kb_s3_decryption_policy" {
         "Resource" : var.kb_s3_data_source_kms_arn
         "Condition" : {
           "StringEquals" : {
-            "kms:ViaService" : ["s3.${data.aws_region.current.name}.amazonaws.com"]
+            "kms:ViaService" : ["s3.${data.aws_region.current.region}.amazonaws.com"]
           }
         }
       }
@@ -141,7 +141,7 @@ resource "aws_iam_policy" "bedrock_kb_s3_decryption_policy" {
 
 # Attach the policies to the role
 resource "aws_iam_role_policy_attachment" "bedrock_knowledge_base_policy_attachment" {
-  count      = var.kb_role_arn != null || local.create_kb == false || var.create_kendra_config == true ? 0 : 1
+  count      = var.kb_role_arn != null || local.create_kb == false || var.create_kendra_config == true || var.create_opensearch_managed_config == true ? 0 : 1
   role       = aws_iam_role.bedrock_knowledge_base_role[0].name
   policy_arn = aws_iam_policy.bedrock_knowledge_base_policy[0].arn
 }
@@ -182,6 +182,12 @@ resource "aws_iam_role_policy_attachment" "bedrock_knowledge_base_policy_s3_atta
   policy_arn = aws_iam_policy.bedrock_knowledge_base_policy_s3[0].arn
 }
 
+resource "aws_iam_role_policy_attachment" "bedrock_knowledge_base_opensearch_managed_policy_attachment" {
+  count      = var.kb_role_arn != null || var.create_opensearch_managed_config == false ? 0 : 1
+  role       = aws_iam_role.bedrock_knowledge_base_role[0].name
+  policy_arn = aws_iam_policy.bedrock_kb_opensearch_managed[0].arn
+}
+
 resource "aws_iam_role_policy" "bedrock_kb_oss" {
   count = var.kb_role_arn != null || var.create_default_kb == false ? 0 : 1
   name  = "AmazonBedrockOSSPolicyForKnowledgeBase_${var.kb_name}"
@@ -193,6 +199,31 @@ resource "aws_iam_role_policy" "bedrock_kb_oss" {
         Action   = ["aoss:*"]
         Effect   = "Allow"
         Resource = ["arn:${local.partition}:aoss:${local.region}:${local.account_id}:*/*"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "bedrock_kb_opensearch_managed" {
+  count = var.kb_role_arn != null || var.create_opensearch_managed_config == false ? 0 : 1
+  name  = "AmazonBedrockOpenSearchManagedPolicyForKnowledgeBase_${var.kb_name}"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = [
+          "es:ESHttpGet",
+          "es:ESHttpPost",
+          "es:ESHttpPut",
+          "es:ESHttpDelete",
+          "es:DescribeDomain"
+        ]
+        Effect   = "Allow"
+        Resource = [
+          var.domain_arn,
+          "${var.domain_arn}/*"
+        ]
       }
     ]
   })

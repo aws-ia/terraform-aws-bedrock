@@ -461,15 +461,6 @@ variable "guardrail_kms_key_arn" {
   default     = null
 }
 
-# – Guardrail Cross Region Configuration –
-variable "guardrail_cross_region_config" {
-  description = "The system-defined guardrail profile to use with your guardrail."
-  type = object({
-    guardrail_profile_arn = optional(string)
-  })
-  default = null
-}
-
 # – Guardrail Content Policy Tier Configuration –
 variable "content_filters_tier_config" {
   description = "Guardrail tier config for content policy."

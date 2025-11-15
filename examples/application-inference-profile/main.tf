@@ -11,10 +11,10 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 module "bedrock" {
-  source = "../.." # local example
+  source       = "../.." # local example
   create_agent = false
 
   # Application Inference Profile
-  create_app_inference_profile = true
+  create_app_inference_profile       = true
   app_inference_profile_model_source = "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
 }

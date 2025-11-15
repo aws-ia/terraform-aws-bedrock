@@ -5,14 +5,14 @@
 #####################################################################################
 
 module "bedrock" {
-  source = "../.." # local example
+  source       = "../.." # local example
   create_agent = false
 
   # Prompt Management
-  prompt_name = "prompt"
-  default_variant = "variant-example"
-  create_prompt = true
-  create_prompt_version = true
+  prompt_name                = "prompt"
+  default_variant            = "variant-example"
+  create_prompt              = true
+  create_prompt_version      = true
   prompt_version_description = "Example prompt version"
   variants_list = [
     {
@@ -41,5 +41,5 @@ module "bedrock" {
     }
 
   ]
- 
+
 }

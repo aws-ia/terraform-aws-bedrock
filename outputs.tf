@@ -3,6 +3,16 @@ output "default_collection" {
   description = "Opensearch default collection value."
 }
 
+output "vector_index" {
+  value       = var.create_default_kb ? module.oss_knowledgebase[0].vector_index : null
+  description = "Opensearch default vector index value in collection."
+}
+
+output "opensearch_serverless_data_policy" {
+  value       = var.create_default_kb ? module.oss_knowledgebase[0].opensearch_serverless_data_policy : null
+  description = "Opensearch opensearch serverless collection data policy."
+}
+
 output "default_kb_identifier" {
   value       = length(awscc_bedrock_knowledge_base.knowledge_base_default) > 0 ? awscc_bedrock_knowledge_base.knowledge_base_default[0].id : null
   description = "The unique identifier of the default knowledge base that was created.  If no default KB was requested, value will be null"

@@ -78,6 +78,10 @@ output "bda_blueprint" {
   description = "The BDA blueprint."
 }
 
+output "bda_project" {
+  value       = var.create_bda ? awscc_bedrock_data_automation_project.bda_project[0] : null
+  description = "The BDA project"
+}
 
 output "agent_resource_role_arn" {
   value       = var.agent_resource_role_arn != null ? var.agent_resource_role_arn : (var.create_agent ? aws_iam_role.agent_role[0].arn : null)

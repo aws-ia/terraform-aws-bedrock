@@ -28,8 +28,8 @@ module "bda" {
     }
   }
   bda_custom_output_config = [{
-    blueprint_arn = module.blueprint.bda_blueprint.blueprint_arn 
-    blueprint_stage = module.blueprint.bda_blueprint.blueprint_stage 
+    blueprint_arn   = module.blueprint.bda_blueprint.blueprint_arn
+    blueprint_stage = module.blueprint.bda_blueprint.blueprint_stage
   }]
 }
 

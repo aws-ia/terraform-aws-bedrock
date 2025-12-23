@@ -987,6 +987,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="output_agent_resource_role_name"></a> [agent\_resource\_role\_name](#output\_agent\_resource\_role\_name) | The name of the Bedrock agent resource role. |
 | <a name="output_application_inference_profile_arn"></a> [application\_inference\_profile\_arn](#output\_application\_inference\_profile\_arn) | The ARN of the application inference profile. |
 | <a name="output_bda_blueprint"></a> [bda\_blueprint](#output\_bda\_blueprint) | The BDA blueprint. |
+| <a name="output_bda_project"></a> [bda\_project](#output\_bda\_project) | The BDA project |
 | <a name="output_bedrock_agent"></a> [bedrock\_agent](#output\_bedrock\_agent) | The Amazon Bedrock Agent if it is created. |
 | <a name="output_bedrock_agent_alias"></a> [bedrock\_agent\_alias](#output\_bedrock\_agent\_alias) | The Amazon Bedrock Agent Alias if it is created. |
 | <a name="output_cloudwatch_log_group"></a> [cloudwatch\_log\_group](#output\_cloudwatch\_log\_group) | The name of the CloudWatch log group for the knowledge base.  If no log group was requested, value will be null |
@@ -997,10 +998,12 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="output_knowledge_base_role_name"></a> [knowledge\_base\_role\_name](#output\_knowledge\_base\_role\_name) | The name of the IAM role used by the knowledge base. |
 | <a name="output_mongo_kb_identifier"></a> [mongo\_kb\_identifier](#output\_mongo\_kb\_identifier) | The unique identifier of the MongoDB knowledge base that was created.  If no MongoDB KB was requested, value will be null |
 | <a name="output_opensearch_kb_identifier"></a> [opensearch\_kb\_identifier](#output\_opensearch\_kb\_identifier) | The unique identifier of the OpenSearch knowledge base that was created.  If no OpenSearch KB was requested, value will be null |
+| <a name="output_opensearch_serverless_data_policy"></a> [opensearch\_serverless\_data\_policy](#output\_opensearch\_serverless\_data\_policy) | Opensearch opensearch serverless collection data policy. |
 | <a name="output_pinecone_kb_identifier"></a> [pinecone\_kb\_identifier](#output\_pinecone\_kb\_identifier) | The unique identifier of the Pinecone knowledge base that was created.  If no Pinecone KB was requested, value will be null |
 | <a name="output_rds_kb_identifier"></a> [rds\_kb\_identifier](#output\_rds\_kb\_identifier) | The unique identifier of the RDS knowledge base that was created.  If no RDS KB was requested, value will be null |
 | <a name="output_s3_data_source_arn"></a> [s3\_data\_source\_arn](#output\_s3\_data\_source\_arn) | The Amazon Bedrock Data Source for S3. |
 | <a name="output_s3_data_source_name"></a> [s3\_data\_source\_name](#output\_s3\_data\_source\_name) | The name of the Amazon Bedrock Data Source for S3. |
 | <a name="output_supervisor_id"></a> [supervisor\_id](#output\_supervisor\_id) | The identifier of the supervisor agent. |
 | <a name="output_supervisor_role_arn"></a> [supervisor\_role\_arn](#output\_supervisor\_role\_arn) | The ARN of the Bedrock supervisor agent resource role. |
+| <a name="output_vector_index"></a> [vector\_index](#output\_vector\_index) | Opensearch default vector index value in collection. |
 <!-- END_TF_DOCS -->

@@ -192,7 +192,7 @@ module "bedrock" {
   # Create S3 Vectors knowledge base
   create_s3_vectors_config = true
   s3_vectors_index_arn = "arn:aws:..."
-   
+
   # Advanced embedding model configuration
   embedding_model_dimensions = 1024
   embedding_data_type = "FLOAT32"

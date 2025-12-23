@@ -61,7 +61,7 @@ resource "aws_iam_role" "bedrock_knowledge_base_role" {
 
 # Attach a policy to allow necessary permissions for the Bedrock Knowledge Base
 resource "aws_iam_policy" "bedrock_knowledge_base_policy" {
-  count = var.kb_role_arn != null || var.create_default_kb == false || var.create_kendra_config == true || var.create_opensearch_managed_config == true ? 0 : 1
+  count = var.kb_role_arn != null || local.create_kb == false || var.create_kendra_config == true || var.create_opensearch_managed_config == true ? 0 : 1
   name  = "AmazonBedrockKnowledgeBasePolicy-${random_string.solution_prefix.result}"
 
   policy = jsonencode({

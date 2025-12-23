@@ -226,6 +226,47 @@ resource "awscc_bedrock_knowledge_base" "knowledge_base_neptune_analytics" {
   }
 }
 
+# – S3 Vectors –
+resource "awscc_bedrock_knowledge_base" "knowledge_base_s3_vectors" {
+  count       = var.create_s3_vectors_config ? 1 : 0
+  name        = "${random_string.solution_prefix.result}-${var.kb_name}"
+  description = var.kb_description
+  role_arn    = var.kb_role_arn != null ? var.kb_role_arn : aws_iam_role.bedrock_knowledge_base_role[0].arn
+  tags        = var.kb_tags
+
+  storage_configuration = {
+    type = "S3_VECTORS"
+    s3_vectors_configuration = var.s3_vectors_index_arn != null ? {
+      index_arn = var.s3_vectors_index_arn
+    } : {
+      index_name        = var.s3_vectors_index_name
+      vector_bucket_arn = var.s3_vectors_bucket_arn
+    }
+  }
+  knowledge_base_configuration = {
+    type = var.kb_type
+    vector_knowledge_base_configuration = {
+      embedding_model_arn = local.kb_embedding_model_arn
+      embedding_model_configuration = var.embedding_model_dimensions != null ? {
+        bedrock_embedding_model_configuration = {
+          dimensions          = var.embedding_model_dimensions
+          embedding_data_type = var.embedding_data_type
+        }
+      } : null
+      supplemental_data_storage_configuration = var.create_supplemental_data_storage ? {
+        supplemental_data_storage_locations = [
+          {
+            supplemental_data_storage_location_type = "S3"
+            s3_location = {
+              uri = var.supplemental_data_s3_uri
+            }
+          }
+        ]
+      } : null
+    }
+  }
+}
+
 # – Pinecone –
 resource "awscc_bedrock_knowledge_base" "knowledge_base_pinecone" {
   count       = var.create_pinecone_config ? 1 : 0

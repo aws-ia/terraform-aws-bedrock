@@ -2081,6 +2081,31 @@ variable "graph_arn" {
   default     = null
 }
 
+# – S3 Vectors Configuration –
+variable "create_s3_vectors_config" {
+  description = "Whether or not to use S3 Vectors configuration"
+  type        = bool
+  default     = false
+}
+
+variable "s3_vectors_index_arn" {
+  description = "ARN of the S3 Vectors index"
+  type        = string
+  default     = null
+}
+
+variable "s3_vectors_index_name" {
+  description = "Name of the S3 Vectors index (used with vector_bucket_arn)"
+  type        = string
+  default     = null
+}
+
+variable "s3_vectors_bucket_arn" {
+  description = "ARN of the S3 Vectors bucket (used with index_name)"
+  type        = string
+  default     = null
+}
+
 # – RDS Configuration –
 variable "custom_metadata_field" {
   description = "The name of the field in which Amazon Bedrock stores custom metadata about the vector store."

@@ -111,6 +111,7 @@ A vector index on a vector store is required to create a vector Knowledge Base. 
 - **MongoDB Atlas**: For MongoDB vector search
 - **Pinecone**: For Pinecone vector database
 - **Amazon RDS Aurora PostgreSQL**: For PostgreSQL with pgvector
+- **Amazon S3 Vectors**: For vector storage built directly on S3 storage
 
 By default, this resource will create an OpenSearch Serverless vector collection and index for each Knowledge Base you create, but you can provide an existing collection to have more control. For other resources you need to have the vector stores already created and credentials stored in AWS Secrets Manager.
 
@@ -124,6 +125,7 @@ To create different types of knowledge bases, set the appropriate variable to `t
 - MongoDB Atlas: `create_mongo_config = true`
 - Pinecone: `create_pinecone_config = true`
 - RDS: `create_rds_config = true`
+- S3 Vectors: `create_s3_vectors_config = true`
 
 #### Advanced Vector Knowledge Base Features
 
@@ -177,6 +179,25 @@ module "bedrock" {
   # Agent configuration
   foundation_model = "anthropic.claude-3-sonnet-20240229-v1:0"
   instruction = "You are a graph database expert who can analyze relationships in data."
+}
+```
+
+Example using S3 Vectors for knowledge base storage:
+
+```hcl
+module "bedrock" {
+  source  = "aws-ia/bedrock/aws"
+  version = "0.0.31"
+
+  # Create S3 Vectors knowledge base
+  create_s3_vectors_config = true
+  s3_vectors_index_arn = "arn:aws:..."
+  # Advanced embedding model configuration
+  embedding_model_dimensions = 1024
+  embedding_data_type = "FLOAT32"
+  # Agent configuration
+  foundation_model = "anthropic.claude-3-sonnet-20240229-v1:0"
+  instruction = "You are an assistant that can search through vector data stored in S3."
 }
 ```
 
@@ -595,8 +616,8 @@ See the additional input variables for deploying BDA projects and blueprints [he
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0, ~> 6.2.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
 | <a name="requirement_awscc"></a> [awscc](#requirement\_awscc) | >= 1.0.0 |
 | <a name="requirement_opensearch"></a> [opensearch](#requirement\_opensearch) | >= 2.2.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.6.0 |
@@ -606,7 +627,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0, ~> 6.2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0.0 |
 | <a name="provider_awscc"></a> [awscc](#provider\_awscc) | >= 1.0.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | >= 3.6.0 |
 | <a name="provider_time"></a> [time](#provider\_time) | ~> 0.6 |
@@ -680,6 +701,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | [awscc_bedrock_knowledge_base.knowledge_base_opensearch_managed](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_pinecone](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_rds](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
+| [awscc_bedrock_knowledge_base.knowledge_base_s3_vectors](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_sql](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_prompt.prompt](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_prompt) | resource |
 | [awscc_bedrock_prompt_version.prompt_version](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_prompt_version) | resource |
@@ -804,6 +826,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_create_prompt_version"></a> [create\_prompt\_version](#input\_create\_prompt\_version) | Whether or not to create a prompt version. | `bool` | `false` | no |
 | <a name="input_create_rds_config"></a> [create\_rds\_config](#input\_create\_rds\_config) | Whether or not to use RDS configuration | `bool` | `false` | no |
 | <a name="input_create_s3_data_source"></a> [create\_s3\_data\_source](#input\_create\_s3\_data\_source) | Whether or not to create the S3 data source. | `bool` | `false` | no |
+| <a name="input_create_s3_vectors_config"></a> [create\_s3\_vectors\_config](#input\_create\_s3\_vectors\_config) | Whether or not to use S3 Vectors configuration | `bool` | `false` | no |
 | <a name="input_create_salesforce"></a> [create\_salesforce](#input\_create\_salesforce) | Whether or not create a Salesforce data source. | `bool` | `false` | no |
 | <a name="input_create_server_side_encryption_config"></a> [create\_server\_side\_encryption\_config](#input\_create\_server\_side\_encryption\_config) | Whether or not to create server-side encryption configuration for the data source. | `bool` | `false` | no |
 | <a name="input_create_sharepoint"></a> [create\_sharepoint](#input\_create\_sharepoint) | Whether or not create a Share Point data source. | `bool` | `false` | no |
@@ -937,6 +960,9 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_s3_data_source_key_path"></a> [s3\_data\_source\_key\_path](#input\_s3\_data\_source\_key\_path) | The S3 key path where for the data source. | `string` | `null` | no |
 | <a name="input_s3_inclusion_prefixes"></a> [s3\_inclusion\_prefixes](#input\_s3\_inclusion\_prefixes) | List of S3 prefixes that define the object containing the data sources. | `list(string)` | `null` | no |
 | <a name="input_s3_location_uri"></a> [s3\_location\_uri](#input\_s3\_location\_uri) | A location for storing content from data sources temporarily as it is processed by custom components in the ingestion pipeline. | `string` | `null` | no |
+| <a name="input_s3_vectors_bucket_arn"></a> [s3\_vectors\_bucket\_arn](#input\_s3\_vectors\_bucket\_arn) | ARN of the S3 Vectors bucket (used with index\_name) | `string` | `null` | no |
+| <a name="input_s3_vectors_index_arn"></a> [s3\_vectors\_index\_arn](#input\_s3\_vectors\_index\_arn) | ARN of the S3 Vectors index | `string` | `null` | no |
+| <a name="input_s3_vectors_index_name"></a> [s3\_vectors\_index\_name](#input\_s3\_vectors\_index\_name) | Name of the S3 Vectors index (used with vector\_bucket\_arn) | `string` | `null` | no |
 | <a name="input_salesforce_credentials_secret_arn"></a> [salesforce\_credentials\_secret\_arn](#input\_salesforce\_credentials\_secret\_arn) | The ARN of an AWS Secrets Manager secret that stores your authentication credentials for your Salesforce instance URL. | `string` | `null` | no |
 | <a name="input_seed_urls"></a> [seed\_urls](#input\_seed\_urls) | A list of web urls. | `list(object({ url = string }))` | `[]` | no |
 | <a name="input_semantic_buffer_size"></a> [semantic\_buffer\_size](#input\_semantic\_buffer\_size) | The buffer size. | `number` | `null` | no |
@@ -1003,6 +1029,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="output_rds_kb_identifier"></a> [rds\_kb\_identifier](#output\_rds\_kb\_identifier) | The unique identifier of the RDS knowledge base that was created.  If no RDS KB was requested, value will be null |
 | <a name="output_s3_data_source_arn"></a> [s3\_data\_source\_arn](#output\_s3\_data\_source\_arn) | The Amazon Bedrock Data Source for S3. |
 | <a name="output_s3_data_source_name"></a> [s3\_data\_source\_name](#output\_s3\_data\_source\_name) | The name of the Amazon Bedrock Data Source for S3. |
+| <a name="output_s3_vectors_kb_identifier"></a> [s3\_vectors\_kb\_identifier](#output\_s3\_vectors\_kb\_identifier) | The unique identifier of the S3 Vectors knowledge base that was created. If no S3 Vectors KB was requested, value will be null |
 | <a name="output_supervisor_id"></a> [supervisor\_id](#output\_supervisor\_id) | The identifier of the supervisor agent. |
 | <a name="output_supervisor_role_arn"></a> [supervisor\_role\_arn](#output\_supervisor\_role\_arn) | The ARN of the Bedrock supervisor agent resource role. |
 | <a name="output_vector_index"></a> [vector\_index](#output\_vector\_index) | Opensearch default vector index value in collection. |

@@ -38,6 +38,11 @@ output "rds_kb_identifier" {
   description = "The unique identifier of the RDS knowledge base that was created.  If no RDS KB was requested, value will be null"
 }
 
+output "s3_vectors_kb_identifier" {
+  value       = length(awscc_bedrock_knowledge_base.knowledge_base_s3_vectors) > 0 ? awscc_bedrock_knowledge_base.knowledge_base_s3_vectors[0].id : null
+  description = "The unique identifier of the S3 Vectors knowledge base that was created. If no S3 Vectors KB was requested, value will be null"
+}
+
 output "datasource_identifier" {
   value       = length(awscc_bedrock_data_source.knowledge_base_ds) > 0 ? awscc_bedrock_data_source.knowledge_base_ds[0].data_source_id : null
   description = "The unique identifier of the data source."

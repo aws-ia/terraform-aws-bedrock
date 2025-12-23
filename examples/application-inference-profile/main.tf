@@ -16,5 +16,5 @@ module "bedrock" {
 
   # Application Inference Profile
   create_app_inference_profile       = true
-  app_inference_profile_model_source = "arn:aws:bedrock:${data.aws_region.current.name}::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
+  app_inference_profile_model_source = "arn:aws:bedrock:${data.aws_region.current.region}::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
 }

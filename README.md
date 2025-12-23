@@ -192,9 +192,11 @@ module "bedrock" {
   # Create S3 Vectors knowledge base
   create_s3_vectors_config = true
   s3_vectors_index_arn = "arn:aws:..."
+   
   # Advanced embedding model configuration
   embedding_model_dimensions = 1024
   embedding_data_type = "FLOAT32"
+
   # Agent configuration
   foundation_model = "anthropic.claude-3-sonnet-20240229-v1:0"
   instruction = "You are an assistant that can search through vector data stored in S3."

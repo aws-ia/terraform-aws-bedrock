@@ -64,7 +64,7 @@ variable "orchestration_type" {
   description = "The type of orchestration strategy for the agent. Valid values: DEFAULT, CUSTOM_ORCHESTRATION"
   type        = string
   default     = "DEFAULT"
-  
+
   validation {
     condition     = contains(["DEFAULT", "CUSTOM_ORCHESTRATION"], var.orchestration_type)
     error_message = "The orchestration_type must be either DEFAULT or CUSTOM_ORCHESTRATION."
@@ -403,48 +403,95 @@ variable "guardrail_description" {
 }
 
 variable "filters_config" {
-  description = "List of content filter configs in content policy."
-  type        = list(map(string))
-  default     = null
+  description = "List of content filter configs in content policy. Supports both text and image filters. Use 'input_modalities' and 'output_modalities' (list of strings) to specify content types: ['TEXT'] for text-only, ['IMAGE'] for image-only, or ['TEXT', 'IMAGE'] to apply the same filter to both text and image content in a single filter configuration. Filter types include: HATE, INSULTS, MISCONDUCT, PROMPT_ATTACK, SEXUAL, VIOLENCE."
+  type = list(object({
+    input_action      = optional(string)
+    input_enabled     = optional(bool)
+    input_modalities  = optional(list(string))
+    input_strength    = optional(string)
+    output_action     = optional(string)
+    output_enabled    = optional(bool)
+    output_modalities = optional(list(string))
+    output_strength   = optional(string)
+    type              = optional(string)
+  }))
+  default = null
 }
 
 variable "contextual_grounding_policy_filters" {
   description = "The contextual grounding policy filters for the guardrail."
-  type        = list(map(string))
-  default     = null
+  type = list(object({
+    action    = optional(string)
+    enabled   = optional(bool)
+    threshold = optional(number)
+    type      = optional(string)
+  }))
+  default = null
 }
 
 variable "pii_entities_config" {
-  description = "List of entities."
-  type        = list(map(string))
-  default     = null
+  description = "List of PII entities configuration for sensitive information policy."
+  type = list(object({
+    action         = optional(string)
+    input_action   = optional(string)
+    input_enabled  = optional(bool)
+    output_action  = optional(string)
+    output_enabled = optional(bool)
+    type           = optional(string)
+  }))
+  default = null
 }
 
 variable "regexes_config" {
-  description = "List of regex."
-  type        = list(map(string))
-  default     = null
+  description = "List of regex patterns for sensitive information policy."
+  type = list(object({
+    action         = optional(string)
+    description    = optional(string)
+    input_action   = optional(string)
+    input_enabled  = optional(bool)
+    name           = optional(string)
+    output_action  = optional(string)
+    output_enabled = optional(bool)
+    pattern        = optional(string)
+  }))
+  default = null
 }
 
 variable "managed_word_lists_config" {
-  description = "A config for the list of managed words."
-  type        = list(map(string))
-  default     = null
+  description = "A config for the list of managed words in word policy."
+  type = list(object({
+    input_action   = optional(string)
+    input_enabled  = optional(bool)
+    output_action  = optional(string)
+    output_enabled = optional(bool)
+    type           = optional(string)
+  }))
+  default = null
 }
 
 variable "words_config" {
-  description = "List of custom word configs."
-  type        = list(map(string))
-  default     = null
+  description = "List of custom word configs in word policy."
+  type = list(object({
+    input_action   = optional(string)
+    input_enabled  = optional(bool)
+    output_action  = optional(string)
+    output_enabled = optional(bool)
+    text           = optional(string)
+  }))
+  default = null
 }
 
 variable "topics_config" {
-  description = "List of topic configs in topic policy"
+  description = "List of topic configs in topic policy."
   type = list(object({
-    name       = string
-    examples   = list(string)
-    type       = string
-    definition = string
+    definition     = optional(string)
+    examples       = optional(list(string))
+    input_action   = optional(string)
+    input_enabled  = optional(bool)
+    name           = optional(string)
+    output_action  = optional(string)
+    output_enabled = optional(bool)
+    type           = optional(string)
   }))
   default = null
 }
@@ -459,6 +506,16 @@ variable "guardrail_kms_key_arn" {
   description = "KMS encryption key to use for the guardrail."
   type        = string
   default     = null
+}
+
+# – Guardrail Automated Reasoning Policy Configuration –
+variable "automated_reasoning_policy_config" {
+  description = "Optional configuration for integrating Automated Reasoning policies with the guardrail."
+  type = object({
+    confidence_threshold = optional(number)
+    policies             = optional(list(string))
+  })
+  default = null
 }
 
 # – Guardrail Cross Region Configuration –
@@ -1222,9 +1279,9 @@ variable "prompt_tags" {
 variable "variants_list" {
   description = "List of prompt variants."
   type = list(object({
-    name          = optional(string)
-    template_type = optional(string)
-    model_id      = optional(string)
+    name                            = optional(string)
+    template_type                   = optional(string)
+    model_id                        = optional(string)
     additional_model_request_fields = optional(string)
     metadata = optional(list(object({
       key   = optional(string)
@@ -1235,7 +1292,7 @@ variable "variants_list" {
         agent_identifier = optional(string)
       }))
     }))
-    
+
     inference_configuration = optional(object({
       text = optional(object({
         max_tokens     = optional(number)
@@ -1248,8 +1305,8 @@ variable "variants_list" {
 
     template_configuration = optional(object({
       chat = optional(object({
-        input_variables = optional(list(object({ 
-          name = optional(string) 
+        input_variables = optional(list(object({
+          name = optional(string)
         })))
         messages = optional(list(object({
           content = optional(list(object({
@@ -1288,7 +1345,7 @@ variable "variants_list" {
           })))
         }))
       })),
-      
+
       text = optional(object({
         input_variables = optional(list(object({ name = optional(string) })))
         text            = optional(string)
@@ -1690,7 +1747,7 @@ variable "provisioned_auth_configuration" {
   description = "Configurations for provisioned Redshift query engine"
   type = object({
     database_user                = optional(string)
-    type                         = optional(string)  # Auth type explicitly defined
+    type                         = optional(string) # Auth type explicitly defined
     username_password_secret_arn = optional(string)
   })
   default = null
@@ -1706,7 +1763,7 @@ variable "provisioned_config_cluster_identifier" {
 variable "serverless_auth_configuration" {
   description = "Configuration for the Redshift serverless query engine."
   type = object({
-    type                         = optional(string)  # Auth type explicitly defined
+    type                         = optional(string) # Auth type explicitly defined
     username_password_secret_arn = optional(string)
   })
   default = null
@@ -1718,21 +1775,21 @@ variable "query_generation_configuration" {
   type = object({
     generation_context = optional(object({
       curated_queries = optional(list(object({
-        natural_language = optional(string)  # Question for the query
-        sql              = optional(string)  # SQL answer for the query
+        natural_language = optional(string) # Question for the query
+        sql              = optional(string) # SQL answer for the query
       })))
       tables = optional(list(object({
         columns = optional(list(object({
-          description = optional(string)  # Column description
-          inclusion   = optional(string)  # Include or exclude status
-          name        = optional(string)  # Column name
+          description = optional(string) # Column description
+          inclusion   = optional(string) # Include or exclude status
+          name        = optional(string) # Column name
         })))
-        description = optional(string)  # Table description
-        inclusion   = optional(string)  # Include or exclude status
-        name        = optional(string)  # Table name (three-part notation)
+        description = optional(string) # Table description
+        inclusion   = optional(string) # Include or exclude status
+        name        = optional(string) # Table name (three-part notation)
       })))
     }))
-    execution_timeout_seconds = optional(number)  # Max query execution timeout
+    execution_timeout_seconds = optional(number) # Max query execution timeout
   })
   default = null
 }
@@ -1741,7 +1798,7 @@ variable "redshift_storage_configuration" {
   description = "List of configurations for available Redshift query engine storage types."
   type = list(object({
     aws_data_catalog_configuration = optional(object({
-      table_names = optional(list(string))  # List of table names in AWS Data Catalog
+      table_names = optional(list(string)) # List of table names in AWS Data Catalog
     }))
     redshift_configuration = optional(object({
       database_name = optional(string)

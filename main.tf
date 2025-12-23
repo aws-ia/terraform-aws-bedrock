@@ -86,7 +86,7 @@ resource "awscc_bedrock_agent" "bedrock_agent" {
   idle_session_ttl_in_seconds = var.idle_session_ttl
   agent_resource_role_arn     = var.agent_resource_role_arn != null ? var.agent_resource_role_arn : aws_iam_role.agent_role[0].arn
   orchestration_type          = var.orchestration_type
-  custom_orchestration        = var.orchestration_type == "CUSTOM" ? {
+  custom_orchestration = var.orchestration_type == "CUSTOM" ? {
     executor = {
       lambda = var.custom_orchestration_lambda_arn
     }
@@ -106,10 +106,10 @@ resource "awscc_bedrock_agent" "bedrock_agent" {
         stop_sequences = var.stop_sequences
         maximum_length = var.max_length
       }
-      base_prompt_template        = var.base_prompt_template
-      parser_mode                 = var.parser_mode
-      prompt_creation_mode        = var.prompt_creation_mode
-      prompt_state                = var.prompt_state
+      base_prompt_template            = var.base_prompt_template
+      parser_mode                     = var.parser_mode
+      prompt_creation_mode            = var.prompt_creation_mode
+      prompt_state                    = var.prompt_state
       additional_model_request_fields = var.additional_model_request_fields
     }]
     override_lambda = var.override_lambda_arn
@@ -196,15 +196,18 @@ resource "awscc_bedrock_guardrail" "guardrail" {
   blocked_input_messaging   = var.blocked_input_messaging
   blocked_outputs_messaging = var.blocked_outputs_messaging
   description               = var.guardrail_description
-  
+
+  # Automated reasoning policy configuration
+  automated_reasoning_policy_config = var.automated_reasoning_policy_config
+
   # Cross region configuration
   cross_region_config = var.guardrail_cross_region_config
 
   # Content policy configuration
-  content_policy_config = {
-    filters_config = var.filters_config
+  content_policy_config = (var.filters_config != null || var.content_filters_tier_config != null) ? {
+    filters_config              = var.filters_config
     content_filters_tier_config = var.content_filters_tier_config
-  }
+  } : null
 
   # Contextual grounding policy configuration
   contextual_grounding_policy_config = var.contextual_grounding_policy_filters != null ? {
@@ -212,20 +215,20 @@ resource "awscc_bedrock_guardrail" "guardrail" {
   } : null
 
   # Sensitive information policy configuration
-  sensitive_information_policy_config = {
+  sensitive_information_policy_config = (var.pii_entities_config != null || var.regexes_config != null) ? {
     pii_entities_config = var.pii_entities_config
     regexes_config      = var.regexes_config
-  }
+  } : null
 
   # Word policy configuration
-  word_policy_config = {
+  word_policy_config = (var.managed_word_lists_config != null || var.words_config != null) ? {
     managed_word_lists_config = var.managed_word_lists_config
     words_config              = var.words_config
-  }
+  } : null
 
   # Topic policy configuration
   topic_policy_config = var.topics_config == null ? null : {
-    topics_config = var.topics_config
+    topics_config      = var.topics_config
     topics_tier_config = var.topics_tier_config
   }
 

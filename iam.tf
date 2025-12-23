@@ -1,18 +1,18 @@
 # – IAM –
 locals {
-  create_kb_role = var.kb_role_arn == null && local.create_kb
-  kendra_index_id = var.create_kendra_config == true ? (var.kendra_index_id != null ? var.kendra_index_id : awscc_kendra_index.genai_kendra_index[0].id) : null
+  create_kb_role                = var.kb_role_arn == null && local.create_kb
+  kendra_index_id               = var.create_kendra_config == true ? (var.kendra_index_id != null ? var.kendra_index_id : awscc_kendra_index.genai_kendra_index[0].id) : null
   kendra_data_source_bucket_arn = var.create_kendra_s3_data_source ? (var.kb_s3_data_source != null ? var.kb_s3_data_source : awscc_s3_bucket.s3_data_source[0].arn) : null
-  action_group_names = concat(var.action_group_lambda_names_list, [var.lambda_action_group_executor])
-  agent_role_name = var.agent_resource_role_arn != null ? split("/", var.agent_resource_role_arn)[1] : ((var.create_agent || var.create_supervisor) ? aws_iam_role.agent_role[0].name : null)
-  kb_embedding_model_arn = replace(replace(var.kb_embedding_model_arn, "arn:aws", "arn:${local.partition}"), "us-east-1", local.region)
+  action_group_names            = concat(var.action_group_lambda_names_list, [var.lambda_action_group_executor])
+  agent_role_name               = var.agent_resource_role_arn != null ? split("/", var.agent_resource_role_arn)[1] : ((var.create_agent || var.create_supervisor) ? aws_iam_role.agent_role[0].name : null)
+  kb_embedding_model_arn        = replace(replace(var.kb_embedding_model_arn, "arn:aws", "arn:${local.partition}"), "us-east-1", local.region)
 }
 
 resource "aws_iam_role" "agent_role" {
-  count = var.agent_resource_role_arn == null && (var.create_agent || var.create_supervisor) ? 1 : 0
-  assume_role_policy    = data.aws_iam_policy_document.agent_trust[0].json
-  name_prefix           = var.name_prefix
-  permissions_boundary  = var.permissions_boundary_arn
+  count                = var.agent_resource_role_arn == null && (var.create_agent || var.create_supervisor) ? 1 : 0
+  assume_role_policy   = data.aws_iam_policy_document.agent_trust[0].json
+  name_prefix          = var.name_prefix
+  permissions_boundary = var.permissions_boundary_arn
 }
 
 resource "aws_iam_role_policy" "agent_policy" {
@@ -56,7 +56,7 @@ resource "aws_iam_role" "bedrock_knowledge_base_role" {
       }
     ]
   })
-  permissions_boundary  = var.permissions_boundary_arn
+  permissions_boundary = var.permissions_boundary_arn
 }
 
 # Attach a policy to allow necessary permissions for the Bedrock Knowledge Base
@@ -207,19 +207,19 @@ resource "aws_iam_role_policy" "bedrock_kb_oss" {
 resource "aws_iam_policy" "bedrock_kb_opensearch_managed" {
   count = var.kb_role_arn != null || var.create_opensearch_managed_config == false ? 0 : 1
   name  = "AmazonBedrockOpenSearchManagedPolicyForKnowledgeBase_${var.kb_name}"
-  
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Action   = [
+        Action = [
           "es:ESHttpGet",
           "es:ESHttpPost",
           "es:ESHttpPut",
           "es:ESHttpDelete",
           "es:DescribeDomain"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           var.domain_arn,
           "${var.domain_arn}/*"
@@ -249,7 +249,7 @@ resource "aws_iam_role_policy" "guardrail_policy" {
 }
 
 resource "aws_iam_role_policy" "guardrail_policy_supervisor_agent" {
-  count = var.create_collaborator && var.create_supervisor_guardrail ? 1 : 0 
+  count = var.create_collaborator && var.create_supervisor_guardrail ? 1 : 0
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -310,41 +310,41 @@ resource "aws_iam_role" "application_inference_profile_role" {
       }
     ]
   })
-  permissions_boundary  = var.permissions_boundary_arn
+  permissions_boundary = var.permissions_boundary_arn
 }
 
 resource "aws_iam_role_policy" "app_inference_profile_role_policy" {
-  count  = var.create_app_inference_profile || var.use_app_inference_profile ? 1 : 0
+  count = var.create_app_inference_profile || var.use_app_inference_profile ? 1 : 0
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": [
-              "bedrock:InvokeModel*",
-              "bedrock:CreateInferenceProfile"
-          ],
-          "Resource": [
-              "arn:${local.partition}:bedrock:*::foundation-model/*",
-              "arn:${local.partition}:bedrock:*:*:inference-profile/*",
-              "arn:${local.partition}:bedrock:*:*:application-inference-profile/*"
-          ]
-        },
-        {
-          "Effect": "Allow",
-          "Action": [
-              "bedrock:GetInferenceProfile",
-              "bedrock:ListInferenceProfiles",
-              "bedrock:DeleteInferenceProfile",
-              "bedrock:TagResource",
-              "bedrock:UntagResource",
-              "bedrock:ListTagsForResource"
-          ],
-          "Resource": [
-              "arn:${local.partition}:bedrock:*:*:inference-profile/*",
-              "arn:${local.partition}:bedrock:*:*:application-inference-profile/*"
-          ]
-        }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "bedrock:InvokeModel*",
+          "bedrock:CreateInferenceProfile"
+        ],
+        "Resource" : [
+          "arn:${local.partition}:bedrock:*::foundation-model/*",
+          "arn:${local.partition}:bedrock:*:*:inference-profile/*",
+          "arn:${local.partition}:bedrock:*:*:application-inference-profile/*"
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "bedrock:GetInferenceProfile",
+          "bedrock:ListInferenceProfiles",
+          "bedrock:DeleteInferenceProfile",
+          "bedrock:TagResource",
+          "bedrock:UntagResource",
+          "bedrock:ListTagsForResource"
+        ],
+        "Resource" : [
+          "arn:${local.partition}:bedrock:*:*:inference-profile/*",
+          "arn:${local.partition}:bedrock:*:*:application-inference-profile/*"
+        ]
+      }
     ]
   })
   role = aws_iam_role.application_inference_profile_role[0].id
@@ -353,63 +353,63 @@ resource "aws_iam_role_policy" "app_inference_profile_role_policy" {
 # Custom model 
 
 resource "aws_iam_role" "custom_model_role" {
-  count              = var.create_custom_model ? 1 : 0
-  assume_role_policy = data.aws_iam_policy_document.custom_model_trust[0].json
-  permissions_boundary  = var.permissions_boundary_arn
-  name_prefix        = "CustomModelRole"
+  count                = var.create_custom_model ? 1 : 0
+  assume_role_policy   = data.aws_iam_policy_document.custom_model_trust[0].json
+  permissions_boundary = var.permissions_boundary_arn
+  name_prefix          = "CustomModelRole"
 }
 
 resource "aws_iam_role_policy" "custom_model_policy" {
   count = var.create_custom_model ? 1 : 0
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Effect": "Allow",
-        "Action": [
+        "Effect" : "Allow",
+        "Action" : [
           "s3:GetObject",
           "s3:PutObject",
           "s3:ListBucket",
           "kms:Decrypt"
         ],
-        "Resource": [
+        "Resource" : [
           "arn:${local.partition}:s3:::${var.custom_model_training_uri}",
           "arn:${local.partition}:s3:::${var.custom_model_training_uri}/*",
         ],
-        "Condition": {
-          "StringEquals": {
-            "aws:PrincipalAccount": local.account_id
+        "Condition" : {
+          "StringEquals" : {
+            "aws:PrincipalAccount" : local.account_id
           }
         }
       },
       {
-        "Effect": "Allow",
-        "Action": [
+        "Effect" : "Allow",
+        "Action" : [
           "s3:GetObject",
           "s3:PutObject",
           "s3:ListBucket",
           "kms:Decrypt"
         ],
-        "Resource": var.custom_model_output_uri == null ? "arn:${local.partition}:s3:::${awscc_s3_bucket.custom_model_output[0].id}/" : "arn:${local.partition}:s3:::${var.custom_model_output_uri}",
-          
-        "Condition": {
-          "StringEquals": {
-            "aws:PrincipalAccount": local.account_id
+        "Resource" : var.custom_model_output_uri == null ? "arn:${local.partition}:s3:::${awscc_s3_bucket.custom_model_output[0].id}/" : "arn:${local.partition}:s3:::${var.custom_model_output_uri}",
+
+        "Condition" : {
+          "StringEquals" : {
+            "aws:PrincipalAccount" : local.account_id
           }
         }
       },
       {
-        "Effect": "Allow",
-        "Action": [
+        "Effect" : "Allow",
+        "Action" : [
           "s3:GetObject",
           "s3:PutObject",
           "s3:ListBucket",
           "kms:Decrypt"
         ],
-        "Resource": var.custom_model_output_uri == null ? "arn:${local.partition}:s3:::${awscc_s3_bucket.custom_model_output[0].id}/*" : "arn:${local.partition}:s3:::${var.custom_model_output_uri}/*",
-        "Condition": {
-          "StringEquals": {
-            "aws:PrincipalAccount": local.account_id
+        "Resource" : var.custom_model_output_uri == null ? "arn:${local.partition}:s3:::${awscc_s3_bucket.custom_model_output[0].id}/*" : "arn:${local.partition}:s3:::${var.custom_model_output_uri}/*",
+        "Condition" : {
+          "StringEquals" : {
+            "aws:PrincipalAccount" : local.account_id
           }
         }
       },
@@ -422,12 +422,12 @@ resource "aws_iam_role_policy" "custom_model_policy" {
 resource "aws_iam_policy" "bedrock_kb_kendra" {
   count = var.kb_role_arn != null || var.create_kendra_config == false ? 0 : 1
   name  = "AmazonBedrockKnowledgeBaseKendraIndexAccessStatement_${var.kendra_index_name}"
-  
+
   policy = jsonencode({
     "Version" = "2012-10-17"
     "Statement" = [
       {
-        "Action"   = [ 
+        "Action" = [
           "kendra:Retrieve",
           "kendra:DescribeIndex"
         ]
@@ -514,8 +514,8 @@ resource "awscc_iam_role" "kendra_s3_datasource_role" {
     ]
   })
   description = "IAM role for Kendra Data Source"
-  path       = "/"
-  role_name  = "kendra-datasource-role"
+  path        = "/"
+  role_name   = "kendra-datasource-role"
 
   policies = [
     {
@@ -529,19 +529,19 @@ resource "awscc_iam_role" "kendra_s3_datasource_role" {
               "s3:GetObject",
               "s3:ListBucket"
             ]
-            Resource = [ 
+            Resource = [
               local.kendra_data_source_bucket_arn,
               "${local.kendra_data_source_bucket_arn}/*"
             ]
           },
           {
-            Effect: "Allow",
-            Action: [
-                "kendra:BatchPutDocument",
-                "kendra:BatchDeleteDocument"
+            Effect : "Allow",
+            Action : [
+              "kendra:BatchPutDocument",
+              "kendra:BatchDeleteDocument"
             ],
-            Resource: "arn:${local.partition}:kendra:${local.region}:${local.account_id}:index/${local.kendra_index_id}"
-        }
+            Resource : "arn:${local.partition}:kendra:${local.region}:${local.account_id}:index/${local.kendra_index_id}"
+          }
         ]
       })
     }
@@ -552,46 +552,46 @@ resource "awscc_iam_role" "kendra_s3_datasource_role" {
 resource "aws_iam_policy" "bedrock_kb_sql" {
   count = var.kb_role_arn != null || var.create_sql_config == false ? 0 : 1
   name  = "AmazonBedrockKnowledgeBaseRedshiftStatement_${var.kb_name}"
-  
+
   policy = jsonencode({
-      "Version": "2012-10-17",
-      "Statement": [
-          {
-              "Sid": "RedshiftDataAPIStatementPermissions",
-              "Effect": "Allow",
-              "Action": [
-                  "redshift-data:GetStatementResult",
-                  "redshift-data:DescribeStatement",
-                  "redshift-data:CancelStatement"
-              ],
-              "Resource": [
-                  "*"
-              ],
-              "Condition": {
-                "StringEquals": {
-                    "redshift-data:statement-owner-iam-userid": "$${aws:userid}"
-                }
-            }
-          },
-          {
-              "Sid": "SqlWorkbenchAccess",
-              "Effect": "Allow",
-              "Action": [
-                  "sqlworkbench:GetSqlRecommendations",
-                  "sqlworkbench:PutSqlGenerationContext",
-                  "sqlworkbench:GetSqlGenerationContext",
-                  "sqlworkbench:DeleteSqlGenerationContext"
-              ],
-              "Resource": "*"
-          },
-          {
-              "Sid": "KbAccess",
-              "Effect": "Allow",
-              "Action": [
-                  "bedrock:GenerateQuery"
-              ],
-              "Resource": "*"
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "RedshiftDataAPIStatementPermissions",
+        "Effect" : "Allow",
+        "Action" : [
+          "redshift-data:GetStatementResult",
+          "redshift-data:DescribeStatement",
+          "redshift-data:CancelStatement"
+        ],
+        "Resource" : [
+          "*"
+        ],
+        "Condition" : {
+          "StringEquals" : {
+            "redshift-data:statement-owner-iam-userid" : "$${aws:userid}"
           }
+        }
+      },
+      {
+        "Sid" : "SqlWorkbenchAccess",
+        "Effect" : "Allow",
+        "Action" : [
+          "sqlworkbench:GetSqlRecommendations",
+          "sqlworkbench:PutSqlGenerationContext",
+          "sqlworkbench:GetSqlGenerationContext",
+          "sqlworkbench:DeleteSqlGenerationContext"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "KbAccess",
+        "Effect" : "Allow",
+        "Action" : [
+          "bedrock:GenerateQuery"
+        ],
+        "Resource" : "*"
+      }
     ]
   })
 }
@@ -600,29 +600,29 @@ resource "aws_iam_policy" "bedrock_kb_sql" {
 resource "aws_iam_policy" "bedrock_kb_sql_serverless" {
   count = var.kb_role_arn != null || var.create_sql_config == false || var.redshift_query_engine_type != "SERVERLESS" ? 0 : 1
   name  = "AmazonBedrockKnowledgeBaseRedshiftServerlessStatement_${var.kb_name}"
-  
+
   policy = jsonencode({
-      "Version": "2012-10-17",
-      "Statement": [
- 
-          {
-              "Sid": "RedshiftDataAPIExecutePermissions",
-              "Effect": "Allow",
-              "Action": [
-                  "redshift-data:ExecuteStatement"
-              ],
-              "Resource": [
-                  "arn:${local.partition}:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
-              ]
-          },
-          {
-              "Sid": "RedshiftServerlessGetCredentials",
-              "Effect": "Allow",
-              "Action": "redshift-serverless:GetCredentials",
-              "Resource": [
-                  "arn:${local.partition}:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
-              ]
-          }
+    "Version" : "2012-10-17",
+    "Statement" : [
+
+      {
+        "Sid" : "RedshiftDataAPIExecutePermissions",
+        "Effect" : "Allow",
+        "Action" : [
+          "redshift-data:ExecuteStatement"
+        ],
+        "Resource" : [
+          "arn:${local.partition}:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
+        ]
+      },
+      {
+        "Sid" : "RedshiftServerlessGetCredentials",
+        "Effect" : "Allow",
+        "Action" : "redshift-serverless:GetCredentials",
+        "Resource" : [
+          "arn:${local.partition}:redshift-serverless:${local.region}:${local.account_id}:workgroup:${split("/", var.sql_kb_workgroup_arn)[1]}"
+        ]
+      }
     ]
   })
 }
@@ -631,28 +631,28 @@ resource "aws_iam_policy" "bedrock_kb_sql_serverless" {
 resource "aws_iam_policy" "bedrock_kb_sql_provisioned" {
   count = var.kb_role_arn != null || var.create_sql_config == false || var.redshift_query_engine_type != "PROVISIONED" ? 0 : 1
   name  = "AmazonBedrockKnowledgeBaseRedshiftProvisionedStatement_${var.kb_name}"
-  
+
   policy = jsonencode({
-      "Version": "2012-10-17",
-      "Statement": [
-          {
-            "Sid": "RedshiftDataAPIExecutePermissions",
-            "Effect": "Allow",
-            "Action": [
-                "redshift-data:ExecuteStatement"
-            ],
-            "Resource": [
-                "arn:${local.partition}:redshift:${local.region}:${local.account_id}:cluster:${var.provisioned_config_cluster_identifier}"
-            ]
-        },
-        {
-            "Sid": "GetCredentialsWithFederatedIAMCredentials",
-            "Effect": "Allow",
-            "Action": "redshift:GetClusterCredentialsWithIAM",
-            "Resource": [
-                "arn:${local.partition}:redshift:${local.region}:${local.account_id}:dbname:${var.provisioned_config_cluster_identifier}/*"
-            ]
-        }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "RedshiftDataAPIExecutePermissions",
+        "Effect" : "Allow",
+        "Action" : [
+          "redshift-data:ExecuteStatement"
+        ],
+        "Resource" : [
+          "arn:${local.partition}:redshift:${local.region}:${local.account_id}:cluster:${var.provisioned_config_cluster_identifier}"
+        ]
+      },
+      {
+        "Sid" : "GetCredentialsWithFederatedIAMCredentials",
+        "Effect" : "Allow",
+        "Action" : "redshift:GetClusterCredentialsWithIAM",
+        "Resource" : [
+          "arn:${local.partition}:redshift:${local.region}:${local.account_id}:dbname:${var.provisioned_config_cluster_identifier}/*"
+        ]
+      }
     ]
   })
 }

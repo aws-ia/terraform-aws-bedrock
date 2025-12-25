@@ -283,7 +283,7 @@ resource "aws_iam_role_policy" "action_group_policy" {
     Statement = [
       {
         Effect   = "Allow"
-        Action   = "lambda:InvokeModel"
+        Action   = "lambda:InvokeFunction"
         Resource = concat([var.lambda_action_group_executor], var.action_group_lambda_arns_list)
       }
     ]

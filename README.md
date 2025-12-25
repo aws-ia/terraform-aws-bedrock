@@ -111,6 +111,7 @@ A vector index on a vector store is required to create a vector Knowledge Base. 
 - **MongoDB Atlas**: For MongoDB vector search
 - **Pinecone**: For Pinecone vector database
 - **Amazon RDS Aurora PostgreSQL**: For PostgreSQL with pgvector
+- **Amazon S3 Vectors**: For vector storage built directly on S3 storage
 
 By default, this resource will create an OpenSearch Serverless vector collection and index for each Knowledge Base you create, but you can provide an existing collection to have more control. For other resources you need to have the vector stores already created and credentials stored in AWS Secrets Manager.
 
@@ -124,6 +125,7 @@ To create different types of knowledge bases, set the appropriate variable to `t
 - MongoDB Atlas: `create_mongo_config = true`
 - Pinecone: `create_pinecone_config = true`
 - RDS: `create_rds_config = true`
+- S3 Vectors: `create_s3_vectors_config = true`
 
 #### Advanced Vector Knowledge Base Features
 
@@ -177,6 +179,27 @@ module "bedrock" {
   # Agent configuration
   foundation_model = "anthropic.claude-3-sonnet-20240229-v1:0"
   instruction = "You are a graph database expert who can analyze relationships in data."
+}
+```
+
+Example using S3 Vectors for knowledge base storage:
+
+```hcl
+module "bedrock" {
+  source  = "aws-ia/bedrock/aws"
+  version = "0.0.31"
+
+  # Create S3 Vectors knowledge base
+  create_s3_vectors_config = true
+  s3_vectors_index_arn = "arn:aws:..."
+
+  # Advanced embedding model configuration
+  embedding_model_dimensions = 1024
+  embedding_data_type = "FLOAT32"
+
+  # Agent configuration
+  foundation_model = "anthropic.claude-3-sonnet-20240229-v1:0"
+  instruction = "You are an assistant that can search through vector data stored in S3."
 }
 ```
 
@@ -264,7 +287,7 @@ Amazon Bedrock's Guardrails feature enables you to implement robust governance a
 
 With Guardrails, you can define and enforce granular, customizable policies to precisely govern the behavior of your generative AI applications. You can configure the following policies in a guardrail to avoid undesirable and harmful content and remove sensitive information for privacy protection.
 
-Content filters – Adjust filter strengths to block input prompts or model responses containing harmful content.
+Content filters – Adjust filter strengths to block input prompts or model responses containing harmful content. Supports both text and image content filtering. Use `input_modalities` and `output_modalities` (list of strings) to specify content types: `["TEXT"]` for text-only, `["IMAGE"]` for image-only, or `["TEXT", "IMAGE"]` to apply the same filter to both text and image content.
 
 Denied topics – Define a set of topics that are undesirable in the context of your application. These topics will be blocked if detected in user queries or model responses.
 
@@ -283,14 +306,32 @@ module "bedrock" {
   blocked_output = "I can provide general info about services, but can't fully address your request here. For personalized help or detailed questions, please contact our customer service team directly. For security reasons, avoid sharing sensitive information through this channel. If you have a general product question, feel free to ask without including personal details."
   filters_config = [
       {
-        input_strength  = "MEDIUM"
-        output_strength = "MEDIUM"
-        type            = "HATE"
+        input_strength     = "MEDIUM"
+        output_strength    = "MEDIUM"
+        type               = "HATE"
+        input_modalities   = ["TEXT"]
+        output_modalities  = ["TEXT"]
       },
       {
-        input_strength  = "HIGH"
-        output_strength = "HIGH"
-        type            = "VIOLENCE"
+        input_strength     = "HIGH"
+        output_strength    = "HIGH"
+        type               = "VIOLENCE"
+        input_modalities   = ["TEXT", "IMAGE"]
+        output_modalities  = ["TEXT", "IMAGE"]
+      },
+      {
+        input_strength     = "HIGH"
+        output_strength    = "HIGH"
+        type               = "HATE"
+        input_modalities   = ["IMAGE"]
+        output_modalities  = ["IMAGE"]
+      },
+      {
+        input_strength     = "MEDIUM"
+        output_strength    = "MEDIUM"
+        type               = "SEXUAL"
+        input_modalities   = ["IMAGE"]
+        output_modalities  = ["IMAGE"]
       }
   ]
   pii_entities_config = [
@@ -577,8 +618,8 @@ See the additional input variables for deploying BDA projects and blueprints [he
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0, ~> 6.2.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
 | <a name="requirement_awscc"></a> [awscc](#requirement\_awscc) | >= 1.0.0 |
 | <a name="requirement_opensearch"></a> [opensearch](#requirement\_opensearch) | >= 2.2.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.6.0 |
@@ -588,7 +629,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0, ~> 6.2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0.0 |
 | <a name="provider_awscc"></a> [awscc](#provider\_awscc) | >= 1.0.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | >= 3.6.0 |
 | <a name="provider_time"></a> [time](#provider\_time) | ~> 0.6 |
@@ -662,6 +703,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | [awscc_bedrock_knowledge_base.knowledge_base_opensearch_managed](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_pinecone](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_rds](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
+| [awscc_bedrock_knowledge_base.knowledge_base_s3_vectors](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_knowledge_base.knowledge_base_sql](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_knowledge_base) | resource |
 | [awscc_bedrock_prompt.prompt](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_prompt) | resource |
 | [awscc_bedrock_prompt_version.prompt_version](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/bedrock_prompt_version) | resource |
@@ -720,6 +762,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_app_inference_profile_name"></a> [app\_inference\_profile\_name](#input\_app\_inference\_profile\_name) | The name of your application inference profile. | `string` | `"AppInferenceProfile"` | no |
 | <a name="input_app_inference_profile_tags"></a> [app\_inference\_profile\_tags](#input\_app\_inference\_profile\_tags) | A map of tag keys and values for application inference profile. | `list(map(string))` | `null` | no |
 | <a name="input_auth_type"></a> [auth\_type](#input\_auth\_type) | The supported authentication type. | `string` | `null` | no |
+| <a name="input_automated_reasoning_policy_config"></a> [automated\_reasoning\_policy\_config](#input\_automated\_reasoning\_policy\_config) | Optional configuration for integrating Automated Reasoning policies with the guardrail. | <pre>object({<br>    confidence_threshold = optional(number)<br>    policies             = optional(list(string))<br>  })</pre> | `null` | no |
 | <a name="input_base_prompt_template"></a> [base\_prompt\_template](#input\_base\_prompt\_template) | Defines the prompt template with which to replace the default prompt template. | `string` | `null` | no |
 | <a name="input_bda_custom_output_config"></a> [bda\_custom\_output\_config](#input\_bda\_custom\_output\_config) | A list of the BDA custom output configuartion blueprint(s). | <pre>list(object({<br>    blueprint_arn     = optional(string)<br>    blueprint_stage   = optional(string)<br>    blueprint_version = optional(string)<br>  }))</pre> | `null` | no |
 | <a name="input_bda_kms_encryption_context"></a> [bda\_kms\_encryption\_context](#input\_bda\_kms\_encryption\_context) | The KMS encryption context for the Bedrock data automation project. | `map(string)` | `null` | no |
@@ -753,7 +796,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_content_filters_tier_config"></a> [content\_filters\_tier\_config](#input\_content\_filters\_tier\_config) | Guardrail tier config for content policy. | <pre>object({<br>    tier_name = optional(string)<br>  })</pre> | `null` | no |
 | <a name="input_context_enrichment_model_arn"></a> [context\_enrichment\_model\_arn](#input\_context\_enrichment\_model\_arn) | The model's ARN for context enrichment. | `string` | `null` | no |
 | <a name="input_context_enrichment_type"></a> [context\_enrichment\_type](#input\_context\_enrichment\_type) | Enrichment type to be used for the vector database. | `string` | `null` | no |
-| <a name="input_contextual_grounding_policy_filters"></a> [contextual\_grounding\_policy\_filters](#input\_contextual\_grounding\_policy\_filters) | The contextual grounding policy filters for the guardrail. | `list(map(string))` | `null` | no |
+| <a name="input_contextual_grounding_policy_filters"></a> [contextual\_grounding\_policy\_filters](#input\_contextual\_grounding\_policy\_filters) | The contextual grounding policy filters for the guardrail. | <pre>list(object({<br>    action    = optional(string)<br>    enabled   = optional(bool)<br>    threshold = optional(number)<br>    type      = optional(string)<br>  }))</pre> | `null` | no |
 | <a name="input_crawl_filter_type"></a> [crawl\_filter\_type](#input\_crawl\_filter\_type) | The crawl filter type. | `string` | `null` | no |
 | <a name="input_crawler_scope"></a> [crawler\_scope](#input\_crawler\_scope) | The scope that a web crawl job will be restricted to. | `string` | `null` | no |
 | <a name="input_create_ag"></a> [create\_ag](#input\_create\_ag) | Whether or not to create an action group. | `bool` | `false` | no |
@@ -785,6 +828,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_create_prompt_version"></a> [create\_prompt\_version](#input\_create\_prompt\_version) | Whether or not to create a prompt version. | `bool` | `false` | no |
 | <a name="input_create_rds_config"></a> [create\_rds\_config](#input\_create\_rds\_config) | Whether or not to use RDS configuration | `bool` | `false` | no |
 | <a name="input_create_s3_data_source"></a> [create\_s3\_data\_source](#input\_create\_s3\_data\_source) | Whether or not to create the S3 data source. | `bool` | `false` | no |
+| <a name="input_create_s3_vectors_config"></a> [create\_s3\_vectors\_config](#input\_create\_s3\_vectors\_config) | Whether or not to use S3 Vectors configuration | `bool` | `false` | no |
 | <a name="input_create_salesforce"></a> [create\_salesforce](#input\_create\_salesforce) | Whether or not create a Salesforce data source. | `bool` | `false` | no |
 | <a name="input_create_server_side_encryption_config"></a> [create\_server\_side\_encryption\_config](#input\_create\_server\_side\_encryption\_config) | Whether or not to create server-side encryption configuration for the data source. | `bool` | `false` | no |
 | <a name="input_create_sharepoint"></a> [create\_sharepoint](#input\_create\_sharepoint) | Whether or not create a Share Point data source. | `bool` | `false` | no |
@@ -823,7 +867,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_enrichment_strategy_method"></a> [enrichment\_strategy\_method](#input\_enrichment\_strategy\_method) | Enrichment Strategy method. | `string` | `null` | no |
 | <a name="input_exclusion_filters"></a> [exclusion\_filters](#input\_exclusion\_filters) | A set of regular expression filter patterns for a type of object. | `list(string)` | `[]` | no |
 | <a name="input_existing_kb"></a> [existing\_kb](#input\_existing\_kb) | The ID of the existing knowledge base. | `string` | `null` | no |
-| <a name="input_filters_config"></a> [filters\_config](#input\_filters\_config) | List of content filter configs in content policy. | `list(map(string))` | `null` | no |
+| <a name="input_filters_config"></a> [filters\_config](#input\_filters\_config) | List of content filter configs in content policy. Supports both text and image filters. Use 'input\_modalities' and 'output\_modalities' (list of strings) to specify content types: ['TEXT'] for text-only, ['IMAGE'] for image-only, or ['TEXT', 'IMAGE'] to apply the same filter to both text and image content in a single filter configuration. Filter types include: HATE, INSULTS, MISCONDUCT, PROMPT\_ATTACK, SEXUAL, VIOLENCE. | <pre>list(object({<br>    input_action      = optional(string)<br>    input_enabled     = optional(bool)<br>    input_modalities  = optional(list(string))<br>    input_strength    = optional(string)<br>    output_action     = optional(string)<br>    output_enabled    = optional(bool)<br>    output_modalities = optional(list(string))<br>    output_strength   = optional(string)<br>    type              = optional(string)<br>  }))</pre> | `null` | no |
 | <a name="input_flow_alias_description"></a> [flow\_alias\_description](#input\_flow\_alias\_description) | A description of the flow alias. | `string` | `null` | no |
 | <a name="input_flow_alias_name"></a> [flow\_alias\_name](#input\_flow\_alias\_name) | The name of your flow alias. | `string` | `"BedrockFlowAlias"` | no |
 | <a name="input_flow_arn"></a> [flow\_arn](#input\_flow\_arn) | ARN representation of the flow. | `string` | `null` | no |
@@ -872,7 +916,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | KMS encryption key to use for the agent. | `string` | `null` | no |
 | <a name="input_lambda_action_group_executor"></a> [lambda\_action\_group\_executor](#input\_lambda\_action\_group\_executor) | ARN of Lambda. | `string` | `null` | no |
 | <a name="input_level_configurations_list"></a> [level\_configurations\_list](#input\_level\_configurations\_list) | Token settings for each layer. | `list(object({ max_tokens = number }))` | `null` | no |
-| <a name="input_managed_word_lists_config"></a> [managed\_word\_lists\_config](#input\_managed\_word\_lists\_config) | A config for the list of managed words. | `list(map(string))` | `null` | no |
+| <a name="input_managed_word_lists_config"></a> [managed\_word\_lists\_config](#input\_managed\_word\_lists\_config) | A config for the list of managed words in word policy. | <pre>list(object({<br>    input_action   = optional(string)<br>    input_enabled  = optional(bool)<br>    output_action  = optional(string)<br>    output_enabled = optional(bool)<br>    type           = optional(string)<br>  }))</pre> | `null` | no |
 | <a name="input_max_length"></a> [max\_length](#input\_max\_length) | The maximum number of tokens to generate in the response. | `number` | `0` | no |
 | <a name="input_max_pages"></a> [max\_pages](#input\_max\_pages) | Maximum number of pages the crawler can crawl. | `number` | `null` | no |
 | <a name="input_memory_configuration"></a> [memory\_configuration](#input\_memory\_configuration) | Configuration for agent memory storage | <pre>object({<br>    enabled_memory_types = optional(list(string))<br>    session_summary_configuration = optional(object({<br>      max_recent_sessions = optional(number)<br>    }))<br>    storage_days = optional(number)<br>  })</pre> | `null` | no |
@@ -891,7 +935,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_parsing_strategy"></a> [parsing\_strategy](#input\_parsing\_strategy) | The parsing strategy for the data source. | `string` | `null` | no |
 | <a name="input_pattern_object_filter_list"></a> [pattern\_object\_filter\_list](#input\_pattern\_object\_filter\_list) | List of pattern object information. | <pre>list(object({<br>    exclusion_filters = optional(list(string))<br>    inclusion_filters = optional(list(string))<br>    object_type       = optional(string)<br><br>  }))</pre> | `[]` | no |
 | <a name="input_permissions_boundary_arn"></a> [permissions\_boundary\_arn](#input\_permissions\_boundary\_arn) | The ARN of the IAM permission boundary for the role. | `string` | `null` | no |
-| <a name="input_pii_entities_config"></a> [pii\_entities\_config](#input\_pii\_entities\_config) | List of entities. | `list(map(string))` | `null` | no |
+| <a name="input_pii_entities_config"></a> [pii\_entities\_config](#input\_pii\_entities\_config) | List of PII entities configuration for sensitive information policy. | <pre>list(object({<br>    action         = optional(string)<br>    input_action   = optional(string)<br>    input_enabled  = optional(bool)<br>    output_action  = optional(string)<br>    output_enabled = optional(bool)<br>    type           = optional(string)<br>  }))</pre> | `null` | no |
 | <a name="input_primary_key_field"></a> [primary\_key\_field](#input\_primary\_key\_field) | The name of the field in which Bedrock stores the ID for each entry. | `string` | `null` | no |
 | <a name="input_prompt_creation_mode"></a> [prompt\_creation\_mode](#input\_prompt\_creation\_mode) | Specifies whether to override the default prompt template. | `string` | `null` | no |
 | <a name="input_prompt_description"></a> [prompt\_description](#input\_prompt\_description) | Description for a prompt resource. | `string` | `null` | no |
@@ -902,13 +946,13 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_prompt_type"></a> [prompt\_type](#input\_prompt\_type) | The step in the agent sequence that this prompt configuration applies to. | `string` | `null` | no |
 | <a name="input_prompt_version_description"></a> [prompt\_version\_description](#input\_prompt\_version\_description) | Description for a prompt version resource. | `string` | `null` | no |
 | <a name="input_prompt_version_tags"></a> [prompt\_version\_tags](#input\_prompt\_version\_tags) | A map of tag keys and values for a prompt version resource. | `map(string)` | `null` | no |
-| <a name="input_provisioned_auth_configuration"></a> [provisioned\_auth\_configuration](#input\_provisioned\_auth\_configuration) | Configurations for provisioned Redshift query engine | <pre>object({<br>    database_user                = optional(string)<br>    type                         = optional(string)  # Auth type explicitly defined<br>    username_password_secret_arn = optional(string)<br>  })</pre> | `null` | no |
+| <a name="input_provisioned_auth_configuration"></a> [provisioned\_auth\_configuration](#input\_provisioned\_auth\_configuration) | Configurations for provisioned Redshift query engine | <pre>object({<br>    database_user                = optional(string)<br>    type                         = optional(string) # Auth type explicitly defined<br>    username_password_secret_arn = optional(string)<br>  })</pre> | `null` | no |
 | <a name="input_provisioned_config_cluster_identifier"></a> [provisioned\_config\_cluster\_identifier](#input\_provisioned\_config\_cluster\_identifier) | The cluster identifier for the provisioned Redshift query engine. | `string` | `null` | no |
-| <a name="input_query_generation_configuration"></a> [query\_generation\_configuration](#input\_query\_generation\_configuration) | Configurations for generating Redshift engine queries. | <pre>object({<br>    generation_context = optional(object({<br>      curated_queries = optional(list(object({<br>        natural_language = optional(string)  # Question for the query<br>        sql              = optional(string)  # SQL answer for the query<br>      })))<br>      tables = optional(list(object({<br>        columns = optional(list(object({<br>          description = optional(string)  # Column description<br>          inclusion   = optional(string)  # Include or exclude status<br>          name        = optional(string)  # Column name<br>        })))<br>        description = optional(string)  # Table description<br>        inclusion   = optional(string)  # Include or exclude status<br>        name        = optional(string)  # Table name (three-part notation)<br>      })))<br>    }))<br>    execution_timeout_seconds = optional(number)  # Max query execution timeout<br>  })</pre> | `null` | no |
+| <a name="input_query_generation_configuration"></a> [query\_generation\_configuration](#input\_query\_generation\_configuration) | Configurations for generating Redshift engine queries. | <pre>object({<br>    generation_context = optional(object({<br>      curated_queries = optional(list(object({<br>        natural_language = optional(string) # Question for the query<br>        sql              = optional(string) # SQL answer for the query<br>      })))<br>      tables = optional(list(object({<br>        columns = optional(list(object({<br>          description = optional(string) # Column description<br>          inclusion   = optional(string) # Include or exclude status<br>          name        = optional(string) # Column name<br>        })))<br>        description = optional(string) # Table description<br>        inclusion   = optional(string) # Include or exclude status<br>        name        = optional(string) # Table name (three-part notation)<br>      })))<br>    }))<br>    execution_timeout_seconds = optional(number) # Max query execution timeout<br>  })</pre> | `null` | no |
 | <a name="input_rate_limit"></a> [rate\_limit](#input\_rate\_limit) | Rate of web URLs retrieved per minute. | `number` | `null` | no |
 | <a name="input_redshift_query_engine_type"></a> [redshift\_query\_engine\_type](#input\_redshift\_query\_engine\_type) | Redshift query engine type for the knowledge base. Defaults to SERVERLESS | `string` | `"SERVERLESS"` | no |
-| <a name="input_redshift_storage_configuration"></a> [redshift\_storage\_configuration](#input\_redshift\_storage\_configuration) | List of configurations for available Redshift query engine storage types. | <pre>list(object({<br>    aws_data_catalog_configuration = optional(object({<br>      table_names = optional(list(string))  # List of table names in AWS Data Catalog<br>    }))<br>    redshift_configuration = optional(object({<br>      database_name = optional(string)<br>    }))<br>    type = optional(string)<br>  }))</pre> | `null` | no |
-| <a name="input_regexes_config"></a> [regexes\_config](#input\_regexes\_config) | List of regex. | `list(map(string))` | `null` | no |
+| <a name="input_redshift_storage_configuration"></a> [redshift\_storage\_configuration](#input\_redshift\_storage\_configuration) | List of configurations for available Redshift query engine storage types. | <pre>list(object({<br>    aws_data_catalog_configuration = optional(object({<br>      table_names = optional(list(string)) # List of table names in AWS Data Catalog<br>    }))<br>    redshift_configuration = optional(object({<br>      database_name = optional(string)<br>    }))<br>    type = optional(string)<br>  }))</pre> | `null` | no |
+| <a name="input_regexes_config"></a> [regexes\_config](#input\_regexes\_config) | List of regex patterns for sensitive information policy. | <pre>list(object({<br>    action         = optional(string)<br>    description    = optional(string)<br>    input_action   = optional(string)<br>    input_enabled  = optional(bool)<br>    name           = optional(string)<br>    output_action  = optional(string)<br>    output_enabled = optional(bool)<br>    pattern        = optional(string)<br>  }))</pre> | `null` | no |
 | <a name="input_relay_conversation_history"></a> [relay\_conversation\_history](#input\_relay\_conversation\_history) | Relay conversation history setting will share conversation history to collaborator if enabled. | `string` | `"TO_COLLABORATOR"` | no |
 | <a name="input_resource_arn"></a> [resource\_arn](#input\_resource\_arn) | The ARN of the vector store. | `string` | `null` | no |
 | <a name="input_s3_data_source_bucket_name"></a> [s3\_data\_source\_bucket\_name](#input\_s3\_data\_source\_bucket\_name) | The name of the S3 bucket where the data source is stored. | `string` | `null` | no |
@@ -918,11 +962,14 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_s3_data_source_key_path"></a> [s3\_data\_source\_key\_path](#input\_s3\_data\_source\_key\_path) | The S3 key path where for the data source. | `string` | `null` | no |
 | <a name="input_s3_inclusion_prefixes"></a> [s3\_inclusion\_prefixes](#input\_s3\_inclusion\_prefixes) | List of S3 prefixes that define the object containing the data sources. | `list(string)` | `null` | no |
 | <a name="input_s3_location_uri"></a> [s3\_location\_uri](#input\_s3\_location\_uri) | A location for storing content from data sources temporarily as it is processed by custom components in the ingestion pipeline. | `string` | `null` | no |
+| <a name="input_s3_vectors_bucket_arn"></a> [s3\_vectors\_bucket\_arn](#input\_s3\_vectors\_bucket\_arn) | ARN of the S3 Vectors bucket (used with index\_name) | `string` | `null` | no |
+| <a name="input_s3_vectors_index_arn"></a> [s3\_vectors\_index\_arn](#input\_s3\_vectors\_index\_arn) | ARN of the S3 Vectors index | `string` | `null` | no |
+| <a name="input_s3_vectors_index_name"></a> [s3\_vectors\_index\_name](#input\_s3\_vectors\_index\_name) | Name of the S3 Vectors index (used with vector\_bucket\_arn) | `string` | `null` | no |
 | <a name="input_salesforce_credentials_secret_arn"></a> [salesforce\_credentials\_secret\_arn](#input\_salesforce\_credentials\_secret\_arn) | The ARN of an AWS Secrets Manager secret that stores your authentication credentials for your Salesforce instance URL. | `string` | `null` | no |
 | <a name="input_seed_urls"></a> [seed\_urls](#input\_seed\_urls) | A list of web urls. | `list(object({ url = string }))` | `[]` | no |
 | <a name="input_semantic_buffer_size"></a> [semantic\_buffer\_size](#input\_semantic\_buffer\_size) | The buffer size. | `number` | `null` | no |
 | <a name="input_semantic_max_tokens"></a> [semantic\_max\_tokens](#input\_semantic\_max\_tokens) | The maximum number of tokens that a chunk can contain. | `number` | `null` | no |
-| <a name="input_serverless_auth_configuration"></a> [serverless\_auth\_configuration](#input\_serverless\_auth\_configuration) | Configuration for the Redshift serverless query engine. | <pre>object({<br>    type                         = optional(string)  # Auth type explicitly defined<br>    username_password_secret_arn = optional(string)<br>  })</pre> | `null` | no |
+| <a name="input_serverless_auth_configuration"></a> [serverless\_auth\_configuration](#input\_serverless\_auth\_configuration) | Configuration for the Redshift serverless query engine. | <pre>object({<br>    type                         = optional(string) # Auth type explicitly defined<br>    username_password_secret_arn = optional(string)<br>  })</pre> | `null` | no |
 | <a name="input_share_point_credentials_secret_arn"></a> [share\_point\_credentials\_secret\_arn](#input\_share\_point\_credentials\_secret\_arn) | The ARN of an AWS Secrets Manager secret that stores your authentication credentials for your SharePoint site/sites. | `string` | `null` | no |
 | <a name="input_share_point_domain"></a> [share\_point\_domain](#input\_share\_point\_domain) | The domain of your SharePoint instance or site URL/URLs. | `string` | `null` | no |
 | <a name="input_share_point_site_urls"></a> [share\_point\_site\_urls](#input\_share\_point\_site\_urls) | A list of one or more SharePoint site URLs. | `list(string)` | `[]` | no |
@@ -946,7 +993,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_text_index_name"></a> [text\_index\_name](#input\_text\_index\_name) | Name of a MongoDB Atlas text index. | `string` | `null` | no |
 | <a name="input_top_k"></a> [top\_k](#input\_top\_k) | Sample from the k most likely next tokens. | `number` | `50` | no |
 | <a name="input_top_p"></a> [top\_p](#input\_top\_p) | Cumulative probability cutoff for token selection. | `number` | `0.5` | no |
-| <a name="input_topics_config"></a> [topics\_config](#input\_topics\_config) | List of topic configs in topic policy | <pre>list(object({<br>    name       = string<br>    examples   = list(string)<br>    type       = string<br>    definition = string<br>  }))</pre> | `null` | no |
+| <a name="input_topics_config"></a> [topics\_config](#input\_topics\_config) | List of topic configs in topic policy. | <pre>list(object({<br>    definition     = optional(string)<br>    examples       = optional(list(string))<br>    input_action   = optional(string)<br>    input_enabled  = optional(bool)<br>    name           = optional(string)<br>    output_action  = optional(string)<br>    output_enabled = optional(bool)<br>    type           = optional(string)<br>  }))</pre> | `null` | no |
 | <a name="input_topics_tier_config"></a> [topics\_tier\_config](#input\_topics\_tier\_config) | Guardrail tier config for topic policy. | <pre>object({<br>    tier_name = optional(string)<br>  })</pre> | `null` | no |
 | <a name="input_transformations_list"></a> [transformations\_list](#input\_transformations\_list) | A list of Lambda functions that process documents. | <pre>list(object({<br>    step_to_apply = optional(string)<br>    transformation_function = optional(object({<br>      transformation_lambda_configuration = optional(object({<br>        lambda_arn = optional(string)<br>      }))<br>    }))<br>  }))</pre> | `null` | no |
 | <a name="input_use_app_inference_profile"></a> [use\_app\_inference\_profile](#input\_use\_app\_inference\_profile) | Whether or not to attach to the app\_inference\_profile\_model\_source. | `bool` | `false` | no |
@@ -954,11 +1001,11 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="input_use_existing_s3_data_source"></a> [use\_existing\_s3\_data\_source](#input\_use\_existing\_s3\_data\_source) | Whether or not to use an existing S3 data source. | `bool` | `false` | no |
 | <a name="input_user_agent"></a> [user\_agent](#input\_user\_agent) | The suffix that will be included in the user agent header for web crawling. | `string` | `null` | no |
 | <a name="input_user_token_configurations"></a> [user\_token\_configurations](#input\_user\_token\_configurations) | List of user token configurations for Kendra. | <pre>list(object({<br><br>    json_token_type_configurations = optional(object({<br>      group_attribute_field     = string<br>      user_name_attribute_field = string<br>    }))<br><br>    jwt_token_type_configuration = optional(object({<br>      claim_regex               = optional(string)<br>      key_location              = optional(string)<br>      group_attribute_field     = optional(string)<br>      user_name_attribute_field = optional(string)<br>      issuer                    = optional(string)<br>      secret_manager_arn        = optional(string)<br>      url                       = optional(string)<br>    }))<br><br>  }))</pre> | `null` | no |
-| <a name="input_variants_list"></a> [variants\_list](#input\_variants\_list) | List of prompt variants. | <pre>list(object({<br>    name          = optional(string)<br>    template_type = optional(string)<br>    model_id      = optional(string)<br>    additional_model_request_fields = optional(string)<br>    metadata = optional(list(object({<br>      key   = optional(string)<br>      value = optional(string)<br>    })))<br>    gen_ai_resource = optional(object({<br>      agent = optional(object({<br>        agent_identifier = optional(string)<br>      }))<br>    }))<br>    <br>    inference_configuration = optional(object({<br>      text = optional(object({<br>        max_tokens     = optional(number)<br>        stop_sequences = optional(list(string))<br>        temperature    = optional(number)<br>        top_p          = optional(number)<br>        top_k          = optional(number)<br>      }))<br>    }))<br><br>    template_configuration = optional(object({<br>      chat = optional(object({<br>        input_variables = optional(list(object({ <br>          name = optional(string) <br>        })))<br>        messages = optional(list(object({<br>          content = optional(list(object({<br>            cache_point = optional(object({<br>              type = optional(string)<br>            }))<br>            text = optional(string)<br>          })))<br>          role = optional(string)<br>        })))<br>        system = optional(list(object({<br>          cache_point = optional(object({<br>            type = optional(string)<br>          }))<br>          text = optional(string)<br>        })))<br>        tool_configuration = optional(object({<br>          tool_choice = optional(object({<br>            any  = optional(string)<br>            auto = optional(string)<br>            tool = optional(object({<br>              name = optional(string)<br>            }))<br>          }))<br>          tools = optional(list(object({<br>            cache_point = optional(object({<br>              type = optional(string)<br>            }))<br>            tool_spec = optional(object({<br>              description = optional(string)<br>              input_schema = optional(object({<br>                json = optional(string)<br>              }))<br>              name = optional(string)<br>            }))<br>          })))<br>        }))<br>      })),<br>      <br>      text = optional(object({<br>        input_variables = optional(list(object({ name = optional(string) })))<br>        text            = optional(string)<br>        cache_point = optional(object({<br>          type = optional(string)<br>        }))<br>        text_s3_location = optional(object({<br>          bucket  = optional(string)<br>          key     = optional(string)<br>          version = optional(string)<br>        }))<br>      }))<br>    }))<br>  }))</pre> | `null` | no |
+| <a name="input_variants_list"></a> [variants\_list](#input\_variants\_list) | List of prompt variants. | <pre>list(object({<br>    name                            = optional(string)<br>    template_type                   = optional(string)<br>    model_id                        = optional(string)<br>    additional_model_request_fields = optional(string)<br>    metadata = optional(list(object({<br>      key   = optional(string)<br>      value = optional(string)<br>    })))<br>    gen_ai_resource = optional(object({<br>      agent = optional(object({<br>        agent_identifier = optional(string)<br>      }))<br>    }))<br><br>    inference_configuration = optional(object({<br>      text = optional(object({<br>        max_tokens     = optional(number)<br>        stop_sequences = optional(list(string))<br>        temperature    = optional(number)<br>        top_p          = optional(number)<br>        top_k          = optional(number)<br>      }))<br>    }))<br><br>    template_configuration = optional(object({<br>      chat = optional(object({<br>        input_variables = optional(list(object({<br>          name = optional(string)<br>        })))<br>        messages = optional(list(object({<br>          content = optional(list(object({<br>            cache_point = optional(object({<br>              type = optional(string)<br>            }))<br>            text = optional(string)<br>          })))<br>          role = optional(string)<br>        })))<br>        system = optional(list(object({<br>          cache_point = optional(object({<br>            type = optional(string)<br>          }))<br>          text = optional(string)<br>        })))<br>        tool_configuration = optional(object({<br>          tool_choice = optional(object({<br>            any  = optional(string)<br>            auto = optional(string)<br>            tool = optional(object({<br>              name = optional(string)<br>            }))<br>          }))<br>          tools = optional(list(object({<br>            cache_point = optional(object({<br>              type = optional(string)<br>            }))<br>            tool_spec = optional(object({<br>              description = optional(string)<br>              input_schema = optional(object({<br>                json = optional(string)<br>              }))<br>              name = optional(string)<br>            }))<br>          })))<br>        }))<br>      })),<br><br>      text = optional(object({<br>        input_variables = optional(list(object({ name = optional(string) })))<br>        text            = optional(string)<br>        cache_point = optional(object({<br>          type = optional(string)<br>        }))<br>        text_s3_location = optional(object({<br>          bucket  = optional(string)<br>          key     = optional(string)<br>          version = optional(string)<br>        }))<br>      }))<br>    }))<br>  }))</pre> | `null` | no |
 | <a name="input_vector_dimension"></a> [vector\_dimension](#input\_vector\_dimension) | The dimension of vectors in the OpenSearch index. Use 1024 for Titan Text Embeddings V2, 1536 for V1 | `number` | `1024` | no |
 | <a name="input_vector_field"></a> [vector\_field](#input\_vector\_field) | The name of the field where the vector embeddings are stored | `string` | `"bedrock-knowledge-base-default-vector"` | no |
 | <a name="input_vector_index_name"></a> [vector\_index\_name](#input\_vector\_index\_name) | The name of the vector index. | `string` | `"bedrock-knowledge-base-default-index"` | no |
-| <a name="input_words_config"></a> [words\_config](#input\_words\_config) | List of custom word configs. | `list(map(string))` | `null` | no |
+| <a name="input_words_config"></a> [words\_config](#input\_words\_config) | List of custom word configs in word policy. | <pre>list(object({<br>    input_action   = optional(string)<br>    input_enabled  = optional(bool)<br>    output_action  = optional(string)<br>    output_enabled = optional(bool)<br>    text           = optional(string)<br>  }))</pre> | `null` | no |
 
 ## Outputs
 
@@ -968,6 +1015,7 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="output_agent_resource_role_name"></a> [agent\_resource\_role\_name](#output\_agent\_resource\_role\_name) | The name of the Bedrock agent resource role. |
 | <a name="output_application_inference_profile_arn"></a> [application\_inference\_profile\_arn](#output\_application\_inference\_profile\_arn) | The ARN of the application inference profile. |
 | <a name="output_bda_blueprint"></a> [bda\_blueprint](#output\_bda\_blueprint) | The BDA blueprint. |
+| <a name="output_bda_project"></a> [bda\_project](#output\_bda\_project) | The BDA project |
 | <a name="output_bedrock_agent"></a> [bedrock\_agent](#output\_bedrock\_agent) | The Amazon Bedrock Agent if it is created. |
 | <a name="output_bedrock_agent_alias"></a> [bedrock\_agent\_alias](#output\_bedrock\_agent\_alias) | The Amazon Bedrock Agent Alias if it is created. |
 | <a name="output_cloudwatch_log_group"></a> [cloudwatch\_log\_group](#output\_cloudwatch\_log\_group) | The name of the CloudWatch log group for the knowledge base.  If no log group was requested, value will be null |
@@ -978,10 +1026,13 @@ See the additional input variables for deploying BDA projects and blueprints [he
 | <a name="output_knowledge_base_role_name"></a> [knowledge\_base\_role\_name](#output\_knowledge\_base\_role\_name) | The name of the IAM role used by the knowledge base. |
 | <a name="output_mongo_kb_identifier"></a> [mongo\_kb\_identifier](#output\_mongo\_kb\_identifier) | The unique identifier of the MongoDB knowledge base that was created.  If no MongoDB KB was requested, value will be null |
 | <a name="output_opensearch_kb_identifier"></a> [opensearch\_kb\_identifier](#output\_opensearch\_kb\_identifier) | The unique identifier of the OpenSearch knowledge base that was created.  If no OpenSearch KB was requested, value will be null |
+| <a name="output_opensearch_serverless_data_policy"></a> [opensearch\_serverless\_data\_policy](#output\_opensearch\_serverless\_data\_policy) | Opensearch opensearch serverless collection data policy. |
 | <a name="output_pinecone_kb_identifier"></a> [pinecone\_kb\_identifier](#output\_pinecone\_kb\_identifier) | The unique identifier of the Pinecone knowledge base that was created.  If no Pinecone KB was requested, value will be null |
 | <a name="output_rds_kb_identifier"></a> [rds\_kb\_identifier](#output\_rds\_kb\_identifier) | The unique identifier of the RDS knowledge base that was created.  If no RDS KB was requested, value will be null |
 | <a name="output_s3_data_source_arn"></a> [s3\_data\_source\_arn](#output\_s3\_data\_source\_arn) | The Amazon Bedrock Data Source for S3. |
 | <a name="output_s3_data_source_name"></a> [s3\_data\_source\_name](#output\_s3\_data\_source\_name) | The name of the Amazon Bedrock Data Source for S3. |
+| <a name="output_s3_vectors_kb_identifier"></a> [s3\_vectors\_kb\_identifier](#output\_s3\_vectors\_kb\_identifier) | The unique identifier of the S3 Vectors knowledge base that was created. If no S3 Vectors KB was requested, value will be null |
 | <a name="output_supervisor_id"></a> [supervisor\_id](#output\_supervisor\_id) | The identifier of the supervisor agent. |
 | <a name="output_supervisor_role_arn"></a> [supervisor\_role\_arn](#output\_supervisor\_role\_arn) | The ARN of the Bedrock supervisor agent resource role. |
+| <a name="output_vector_index"></a> [vector\_index](#output\_vector\_index) | Opensearch default vector index value in collection. |
 <!-- END_TF_DOCS -->

@@ -1,15 +1,15 @@
 # – OpenSearch Serverless Default –
 
 module "oss_knowledgebase" {
-  count = var.create_default_kb ? 1 : 0
-  source  = "aws-ia/opensearch-serverless/aws"
-  version = "0.0.5"
+  count                              = var.create_default_kb ? 1 : 0
+  source                             = "aws-ia/opensearch-serverless/aws"
+  version                            = "0.0.5"
   allow_public_access_network_policy = var.allow_opensearch_public_access
-  number_of_shards = var.number_of_shards
-  number_of_replicas = var.number_of_replicas
-  create_vector_index = true
-  collection_tags = var.kb_tags != null ? [for k, v in var.kb_tags : { key = k, value = v }] : []
-  vector_index_mappings = <<-EOF
+  number_of_shards                   = var.number_of_shards
+  number_of_replicas                 = var.number_of_replicas
+  create_vector_index                = true
+  collection_tags                    = var.kb_tags != null ? [for k, v in var.kb_tags : { key = k, value = v }] : []
+  vector_index_mappings              = <<-EOF
       {
       "properties": {
           "bedrock-knowledge-base-default-vector": {
@@ -83,6 +83,6 @@ resource "aws_opensearchserverless_access_policy" "updated_data_policy" {
 
 resource "time_sleep" "wait_after_index_creation" {
   count           = var.create_default_kb ? 1 : 0
-  depends_on      = [ module.oss_knowledgebase[0].vector_index ]
+  depends_on      = [module.oss_knowledgebase[0].vector_index]
   create_duration = "60s" # Wait for 60 seconds before creating the index
 }
